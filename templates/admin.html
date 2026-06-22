@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InvestDesk — Admin</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+
+  <!-- Login screen -->
+  <div class="login-shell" id="loginShell">
+    <div class="login-card">
+      <div class="mark">INVESTDESK</div>
+      <h1>Admin sign in</h1>
+      <div class="login-error" id="loginError"></div>
+      <form id="loginForm">
+        <div class="field">
+          <label for="loginUsername">Username</label>
+          <input type="text" id="loginUsername" autocomplete="username" required />
+        </div>
+        <div class="field">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" autocomplete="current-password" required />
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; margin-top:6px;">Sign in</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Admin shell -->
+  <div class="hidden" id="adminShell">
+    <div class="ticker-tape">
+      <div class="ticker-track" id="tickerTrack">
+        <div class="ticker-item"><span class="sym">Loading live prices\u2026</span></div>
+      </div>
+    </div>
+
+    <div class="shell">
+      <aside class="rail">
+        <div class="rail-brand">
+          <div class="mark">INVESTDESK</div>
+          <div class="sub">Admin console</div>
+        </div>
+        <nav class="rail-nav">
+          <a class="rail-link" href="/">Dashboard</a>
+          <a class="rail-link active" href="/admin">Admin panel</a>
+        </nav>
+        <div class="rail-foot">
+          <button class="btn btn-sm" id="logoutBtn" style="width:100%;">Sign out</button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <div class="main-header">
+          <h1><span class="live-dot"></span>All user investments</h1>
+          <div class="meta">Edit or delete any record below</div>
+        </div>
+
+        <div class="summary-strip" style="grid-template-columns: repeat(3, 1fr);">
+          <div class="summary-cell">
+            <div class="label">Total positions</div>
+            <div class="value mono tabular" id="statTotalRows">0</div>
+          </div>
+          <div class="summary-cell">
+            <div class="label">Unique users</div>
+            <div class="value mono tabular" id="statTotalUsers">0</div>
+          </div>
+          <div class="summary-cell">
+            <div class="label">Total market value</div>
+            <div class="value mono tabular" id="statTotalValue">$0.00</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h2>All holdings</h2>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>User</th>
+                <th>Symbol</th>
+                <th>Shares</th>
+                <th>Buy price</th>
+                <th>Current</th>
+                <th>Gain / loss</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminBody"></tbody>
+          </table>
+          <div class="empty-state" id="adminEmpty">
+            <div class="icon">\u25E6</div>
+            No investment records yet.
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Edit modal -->
+  <div class="modal-overlay hidden" id="editModalOverlay">
+    <div class="modal">
+      <h3>Edit investment</h3>
+      <form id="editForm">
+        <div class="field">
+          <label for="editUserName">User</label>
+          <input type="text" id="editUserName" required />
+        </div>
+        <div class="field">
+          <label for="editSymbol">Symbol</label>
+          <select id="editSymbol" required>
+            <option value="TSLA">TSLA — Tesla</option>
+            <option value="AAPL">AAPL — Apple</option>
+            <option value="NVDA">NVDA — NVIDIA</option>
+            <option value="MSFT">MSFT — Microsoft</option>
+            <option value="VNQ">VNQ — Real Estate (ETF)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="editShares">Shares</label>
+          <input type="number" id="editShares" step="0.0001" min="0.0001" required />
+        </div>
+        <div class="field">
+          <label for="editBuyPrice">Buy price (per share, $)</label>
+          <input type="number" id="editBuyPrice" step="0.01" min="0.01" required />
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn" id="cancelEdit">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/static/js/admin.js"></script>
+  <script src="/static/js/chat-widget.js"></script>
+</body>
+</html>

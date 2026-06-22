@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InvestDesk · Modern light</title>
+  <!-- Inter font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #f0f4fe;
+      color: #0b1b33;
+      line-height: 1.5;
+      padding: 1.5rem 1rem 2rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .shell {
+      max-width: 1440px;
+      width: 100%;
+      background: #ffffff;
+      border-radius: 32px;
+      box-shadow: 0 20px 60px rgba(0,20,50,0.06), 0 2px 12px rgba(0,0,0,0.02);
+      border: 1px solid #e8edf6;
+      overflow: hidden;
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    /* ----- ticker (modern) ----- */
+    .ticker-tape {
+      background: #0b1b33;
+      color: #b9c8e0;
+      padding: 0.5rem 0;
+      overflow: hidden;
+      white-space: nowrap;
+      border-bottom: 1px solid #1e2f4a;
+      font-size: 0.85rem;
+      width: 100%;
+      letter-spacing: 0.01em;
+    }
+    .ticker-track {
+      display: inline-flex;
+      gap: 2.8rem;
+      animation: tickerScroll 36s linear infinite;
+      padding-left: 2rem;
+    }
+    .ticker-item .sym { font-weight: 600; color: #f0f4ff; }
+    .ticker-item .change-up { color: #4ade80; }
+    .ticker-item .change-down { color: #f87171; }
+    @keyframes tickerScroll { 0% { transform:translateX(0); } 100% { transform:translateX(-50%); } }
+
+    /* ----- rail (sidebar) with icons ----- */
+    .rail {
+      width: 230px;
+      background: #fafcff;
+      padding: 2rem 1.2rem 1.5rem;
+      border-right: 1px solid #e8edf6;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    .rail-brand .mark {
+      font-weight: 700;
+      font-size: 1.6rem;
+      letter-spacing: -0.03em;
+      color: #0b1b33;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .rail-brand .mark svg { width: 28px; height: 28px; fill: #2563eb; }
+    .rail-brand .sub { font-size: 0.7rem; color: #64748b; letter-spacing: 0.04em; margin-top: 0.1rem; padding-left: 0.2rem; }
+    .rail-nav { margin: 2.2rem 0 1.8rem; display:flex; flex-direction:column; gap:0.4rem; }
+    .rail-link {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.6rem 0.75rem;
+      border-radius: 12px;
+      color: #64748b;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.9rem;
+      transition: 0.15s;
+    }
+    .rail-link svg { width: 20px; height: 20px; fill: currentColor; flex-shrink: 0; }
+    .rail-link.active {
+      background: #dbeafe;
+      color: #2563eb;
+      font-weight: 600;
+    }
+    .rail-link:hover:not(.active) { background: #f1f5f9; }
+    .rail-foot {
+      margin-top: auto;
+      font-size: 0.75rem;
+      color: #64748b;
+      border-top: 1px solid #e8edf6;
+      padding-top: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .rail-foot .mono { font-weight: 600; color: #0b1b33; }
+    .rail-foot svg { width: 18px; height: 18px; fill: #64748b; }
+
+    /* ----- main ----- */
+    .main {
+      flex: 1;
+      padding: 1.8rem 2rem 2rem;
+      background: #ffffff;
+      min-width: 0;
+    }
+    .main-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.8rem;
+    }
+    .main-header h1 {
+      font-size: 1.6rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .main-header h1 svg { width: 28px; height: 28px; fill: #2563eb; }
+    .live-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: #22c55e;
+      border-radius: 50%;
+      margin-right: 0.2rem;
+      box-shadow: 0 0 0 3px #dcfce7;
+      animation: pulse-dot 2s infinite;
+    }
+    @keyframes pulse-dot { 0% { opacity:1; } 50% { opacity:0.5; } 100% { opacity:1; } }
+    .meta {
+      color: #64748b;
+      font-size: 0.8rem;
+      background: #f1f5f9;
+      padding: 0.3rem 1rem;
+      border-radius: 40px;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .meta svg { width: 16px; height: 16px; fill: #64748b; }
+
+    /* summary strip with icons */
+    .summary-strip {
+      display: grid;
+      grid-template-columns: repeat(5,1fr);
+      gap: 0.8rem;
+      margin-bottom: 2rem;
+    }
+    .summary-cell {
+      background: #f8fafc;
+      padding: 0.8rem 1rem;
+      border-radius: 16px;
+      border: 1px solid #e8edf6;
+      transition: 0.1s;
+      display: flex;
+      flex-direction: column;
+    }
+    .summary-cell .label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .summary-cell .label svg { width: 14px; height: 14px; fill: #64748b; }
+    .summary-cell .value {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-top: 0.15rem;
+    }
+
+    .section-label {
+      font-weight: 600;
+      font-size: 1rem;
+      color: #1e293b;
+      margin: 1.8rem 0 0.8rem;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .section-label svg { width: 20px; height: 20px; fill: #2563eb; }
+
+    /* asset grid - modern cards with subtle icon */
+    .asset-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px,1fr));
+      gap: 0.8rem;
+      margin-bottom: 2rem;
+    }
+    .asset-card {
+      background: #f8fafc;
+      padding: 0.9rem 1rem;
+      border-radius: 18px;
+      border: 1px solid #e8edf6;
+      transition: 0.1s;
+      display: flex;
+      flex-direction: column;
+    }
+    .asset-card .sym {
+      font-weight: 600;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .asset-card .sym svg { width: 18px; height: 18px; fill: #2563eb; }
+    .asset-card .price { font-size: 1.1rem; font-weight: 500; margin-top: 0.1rem; }
+    .asset-card .chg { font-size: 0.75rem; font-weight: 500; }
+
+    /* panel / table */
+    .panel {
+      background: #fafcff;
+      border-radius: 20px;
+      border: 1px solid #e8edf6;
+      padding: 1.2rem 1.2rem 0.5rem;
+      margin-top: 1rem;
+    }
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .panel-head h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .panel-head h2 svg { width: 22px; height: 22px; fill: #2563eb; }
+    .btn {
+      background: transparent;
+      border: 1px solid #d0d9e6;
+      padding: 0.4rem 1.2rem;
+      border-radius: 40px;
+      font-weight: 500;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: 0.15s;
+      color: #1e293b;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .btn svg { width: 16px; height: 16px; fill: currentColor; }
+    .btn-primary {
+      background: #2563eb;
+      border-color: #2563eb;
+      color: white;
+    }
+    .btn-primary:hover { background: #1d4ed8; }
+    table { width:100%; border-collapse:collapse; font-size:0.85rem; }
+    th { text-align:left; padding:0.5rem 0.25rem; color:#64748b; font-weight:500; border-bottom:1px solid #e8edf6; }
+    td { padding:0.6rem 0.25rem; border-bottom:1px solid #f1f5f9; }
+    .empty-state { text-align:center; padding:2rem 0; color:#64748b; }
+    .empty-state .icon { font-size:2rem; opacity:0.4; }
+
+    /* testimonials - light, with images & subtle icons */
+    .testimonials-section {
+      margin-top: 2.5rem;
+      background: #f8fafc;
+      border-radius: 24px;
+      padding: 1.8rem 1.8rem 1.5rem;
+      border: 1px solid #e8edf6;
+    }
+    .testimonials-section h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .testimonials-section h3 svg { width: 24px; height: 24px; fill: #f59e0b; }
+    .testimonial-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px,1fr));
+      gap: 1.5rem;
+    }
+    .testimonial-card {
+      background: white;
+      padding: 1.2rem 1rem 1rem;
+      border-radius: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+      border: 1px solid #eef3f9;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .testimonial-card .person {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      margin-bottom: 0.6rem;
+    }
+    .testimonial-card .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 60px;
+      object-fit: cover;
+      border: 2px solid white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    }
+    .testimonial-card .name { font-weight: 600; font-size: 0.9rem; }
+    .testimonial-card .role { font-size: 0.7rem; color: #64748b; }
+    .testimonial-card .quote {
+      font-size: 0.85rem;
+      color: #1e293b;
+      line-height: 1.4;
+      margin-top: 0.2rem;
+      font-style: italic;
+    }
+
+    /* contact bar */
+    .contact-bar {
+      margin-top: 1.2rem;
+      font-size: 0.8rem;
+      background: #f1f6fe;
+      padding: 0.6rem 1.4rem;
+      border-radius: 60px;
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 1.4rem;
+      align-items: center;
+      color: #1e293b;
+      border: 1px solid #dbeafe;
+    }
+    .contact-bar a {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .contact-bar a:hover { text-decoration:underline; }
+    .contact-bar svg { width: 16px; height: 16px; fill: #2563eb; }
+
+    /* modal */
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.2); backdrop-filter:blur(2px); display:flex; align-items:center; justify-content:center; z-index:999; }
+    .modal-overlay.hidden { display:none; }
+    .modal { background:white; padding:2rem; border-radius:32px; max-width:400px; width:100%; box-shadow:0 20px 48px rgba(0,0,0,0.08); }
+    .modal h3 { margin-bottom:1.2rem; display:flex; align-items:center; gap:0.4rem; }
+    .modal h3 svg { width: 24px; height: 24px; fill: #2563eb; }
+    .field { margin-bottom:0.8rem; }
+    .field label { display:block; font-size:0.75rem; font-weight:500; color:#475569; margin-bottom:0.2rem; }
+    .field input, .field select { width:100%; padding:0.5rem 0.75rem; border-radius:14px; border:1px solid #d0d9e6; background:white; }
+    .modal-actions { display:flex; gap:0.5rem; justify-content:flex-end; margin-top:1.2rem; }
+
+    @media (max-width:720px) {
+      .rail { width:100%; border-right:none; border-bottom:1px solid #e8edf6; }
+      .summary-strip { grid-template-columns:repeat(3,1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== TICKER ===== -->
+<div class="ticker-tape">
+  <div class="ticker-track" id="tickerTrack">
+    <div class="ticker-item"><span class="sym">TSLA</span> $243.50 <span class="change-up">▲ 1.2%</span></div>
+    <div class="ticker-item"><span class="sym">AAPL</span> $178.20 <span class="change-up">▲ 0.6%</span></div>
+    <div class="ticker-item"><span class="sym">NVDA</span> $875.40 <span class="change-up">▲ 2.4%</span></div>
+    <div class="ticker-item"><span class="sym">MSFT</span> $415.10 <span class="change-down">▼ 0.2%</span></div>
+    <div class="ticker-item"><span class="sym">VNQ</span> $89.70 <span class="change-up">▲ 0.3%</span></div>
+    <div class="ticker-item"><span class="sym">BTC</span> $62,450 <span class="change-up">▲ 1.8%</span></div>
+    <div class="ticker-item"><span class="sym">ETH</span> $3,210 <span class="change-up">▲ 0.9%</span></div>
+  </div>
+</div>
+
+<!-- ===== SHELL ===== -->
+<div class="shell">
+  <!-- RAIL with SVG icons -->
+  <aside class="rail">
+    <div class="rail-brand">
+      <div class="mark">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+        INVESTDESK
+      </div>
+      <div class="sub">Portfolio terminal</div>
+    </div>
+    <nav class="rail-nav">
+      <a class="rail-link active" href="#">
+        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        Dashboard
+      </a>
+      <a class="rail-link" href="#">
+        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/></svg>
+        Admin panel
+      </a>
+    </nav>
+    <div class="rail-foot">
+      <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      <span>Signed in as<br/><span class="mono" id="currentUserLabel">alex.c@fund</span></span>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <!-- header -->
+    <div class="main-header">
+      <h1>
+        <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+        <span class="live-dot"></span> Markets
+      </h1>
+      <div class="meta">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-.5-13v4h-5v2h5v4l5-5z"/></svg>
+        <span id="lastUpdated">Updated: 22 Jun 2026, 14:32</span>
+      </div>
+    </div>
+
+    <!-- summary with icons -->
+    <div class="summary-strip">
+      <div class="summary-cell"><div class="label"><svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>Market value</div><div class="value mono tabular" id="sumValue">$184,230.00</div></div>
+      <div class="summary-cell"><div class="label"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>Cost basis</div><div class="value mono tabular" id="sumCost">$162,400.00</div></div>
+      <div class="summary-cell"><div class="label"><svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>Unrealized gain</div><div class="value mono tabular" id="sumGain">$21,830.00</div></div>
+      <div class="summary-cell"><div class="label"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5h-2.16v2.16c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64h-1.71c.06 1.36.87 2.57 2.49 2.97V19h2.16v-2.16c1.51-.32 2.72-1.3 2.72-2.81 0-1.79-1.49-2.69-3.66-3.21z"/></svg>Return</div><div class="value mono tabular" id="sumGainPct">+13.44%</div></div>
+      <div class="summary-cell"><div class="label"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>Holdings</div><div class="value mono tabular" id="sumCount">5</div></div>
+    </div>
+
+    <!-- live assets -->
+    <div class="section-label">
+      <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+      Live prices
+    </div>
+    <div class="asset-grid" id="assetGrid">
+      <div class="asset-card"><div class="sym"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>TSLA</div><div class="price">$243.50</div><div class="chg" style="color:#22c55e;">+1.2%</div></div>
+      <div class="asset-card"><div class="sym"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>AAPL</div><div class="price">$178.20</div><div class="chg" style="color:#22c55e;">+0.6%</div></div>
+      <div class="asset-card"><div class="sym"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>NVDA</div><div class="price">$875.40</div><div class="chg" style="color:#22c55e;">+2.4%</div></div>
+      <div class="asset-card"><div class="sym"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>MSFT</div><div class="price">$415.10</div><div class="chg" style="color:#ef4444;">-0.2%</div></div>
+      <div class="asset-card"><div class="sym"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>VNQ</div><div class="price">$89.70</div><div class="chg" style="color:#22c55e;">+0.3%</div></div>
+    </div>
+
+    <!-- holdings -->
+    <div class="panel">
+      <div class="panel-head">
+        <h2><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/></svg>Your holdings</h2>
+        <button class="btn btn-primary" id="openAddModal">
+          <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          Add investment
+        </button>
+      </div>
+      <table>
+        <thead><tr><th>Symbol</th><th>Shares</th><th>Buy price</th><th>Current</th><th>Market value</th><th>Gain</th><th></th></tr></thead>
+        <tbody id="holdingsBody">
+          <tr><td>TSLA</td><td>120</td><td>$210.00</td><td>$243.50</td><td>$29,220</td><td style="color:#22c55e;">+15.9%</td><td></td></tr>
+          <tr><td>AAPL</td><td>80</td><td>$165.00</td><td>$178.20</td><td>$14,256</td><td style="color:#22c55e;">+8.0%</td><td></td></tr>
+          <tr><td>NVDA</td><td>45</td><td>$740.00</td><td>$875.40</td><td>$39,393</td><td style="color:#22c55e;">+18.3%</td><td></td></tr>
+        </tbody>
+      </table>
+      <div class="empty-state" id="holdingsEmpty" style="display:none;"><div class="icon">◌</div>No holdings yet.</div>
+    </div>
+
+    <!-- TESTIMONIALS with images -->
+    <div class="testimonials-section">
+      <h3>
+        <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+        Investor voices
+      </h3>
+      <div class="testimonial-grid">
+        <div class="testimonial-card">
+          <div class="person">
+            <img class="avatar" src="https://randomuser.me/api/portraits/women/44.jpg" alt="Sarah" />
+            <div><div class="name">Sarah K.</div><div class="role">Angel investor</div></div>
+          </div>
+          <div class="quote">“InvestDesk gives me real-time clarity. I check my portfolio daily — it's become my command center.”</div>
+        </div>
+        <div class="testimonial-card">
+          <div class="person">
+            <img class="avatar" src="https://randomuser.me/api/portraits/men/32.jpg" alt="David" />
+            <div><div class="name">David R.</div><div class="role">Tech founder</div></div>
+          </div>
+          <div class="quote">“The light theme is so clean. I love the live ticker and how easy it is to track my holdings.”</div>
+        </div>
+        <div class="testimonial-card">
+          <div class="person">
+            <img class="avatar" src="https://randomuser.me/api/portraits/women/68.jpg" alt="Elena" />
+            <div><div class="name">Elena M.</div><div class="role">Portfolio manager</div></div>
+          </div>
+          <div class="quote">“Tested many dashboards — this one is fast, beautiful, and the images make it feel human.”</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTACT -->
+    <div style="margin-top: 1.8rem; display: flex; justify-content: flex-start;">
+      <div class="contact-bar">
+        <span>
+          <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+          <a href="tel:+16693627747">+1 669 362 7747</a>
+        </span>
+        <span>
+          <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+          <a href="mailto:investmentgroupofcompany37@gmail.com">investmentgroupofcompany37@gmail.com</a>
+        </span>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay hidden" id="addModalOverlay">
+  <div class="modal">
+    <h3><svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Add investment</h3>
+    <form id="addForm">
+      <div class="field"><label for="addSymbol">Symbol</label><select id="addSymbol"><option value="TSLA">TSLA</option><option value="AAPL">AAPL</option><option value="NVDA">NVDA</option><option value="MSFT">MSFT</option><option value="VNQ">VNQ</option></select></div>
+      <div class="field"><label for="addShares">Shares</label><input type="number" id="addShares" step="0.0001" min="0.0001" required /></div>
+      <div class="field"><label for="addBuyPrice">Buy price ($)</label><input type="number" id="addBuyPrice" step="0.01" min="0.01" required /></div>
+      <div class="modal-actions"><button type="button" class="btn" id="cancelAdd">Cancel</button><button type="submit" class="btn btn-primary">Add</button></div>
+    </form>
+  </div>
+</div>
+
+<script>
+  (function() {
+    const overlay = document.getElementById('addModalOverlay');
+    const openBtn = document.getElementById('openAddModal');
+    const cancelBtn = document.getElementById('cancelAdd');
+    if (openBtn) openBtn.addEventListener('click', ()=> overlay.classList.remove('hidden'));
+    if (cancelBtn) cancelBtn.addEventListener('click', ()=> overlay.classList.add('hidden'));
+    overlay.addEventListener('click', (e)=> { if(e.target === overlay) overlay.classList.add('hidden'); });
+    document.getElementById('addForm')?.addEventListener('submit', (e)=> { e.preventDefault(); overlay.classList.add('hidden'); alert('Position added (demo)'); });
+  })();
+</script>
+</body>
+</html>
