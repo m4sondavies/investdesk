@@ -11,6 +11,7 @@
   --bg-void:      #f0f4fe;
   --bg-panel:     #ffffff;
   --bg-panel-2:   #f8fafc;
+  --bg-glass:     rgba(255, 255, 255, 0.92);
   --border:       #e8edf6;
   --border-light: #d0d9e6;
   --text-primary: #0b1b33;
@@ -25,6 +26,7 @@
   --whatsapp-dark:#1aa851;
   --blue:         #2563eb;
   --blue-soft:    #dbeafe;
+  --blue-dark:    #1d4ed8;
 
   --mono: 'JetBrains Mono', 'Courier New', monospace;
   --sans: 'Inter', -apple-system, sans-serif;
@@ -202,6 +204,27 @@ button {
   gap: 8px;
 }
 .rail-foot svg { width: 18px; height: 18px; fill: var(--text-dim); flex-shrink: 0; }
+
+.rail-foot .user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.rail-foot .btn-logout {
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 4px 12px;
+  border-radius: 30px;
+  border: 1px solid var(--border);
+  transition: 0.12s;
+  background: transparent;
+}
+.rail-foot .btn-logout:hover {
+  background: var(--bg-panel-2);
+  border-color: var(--text-dim);
+}
 
 .main {
   padding: 28px 32px 100px;
@@ -477,7 +500,7 @@ tbody tr:hover { background: var(--bg-panel-2); }
   border-color: var(--blue);
   color: white;
 }
-.btn-primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
+.btn-primary:hover { background: var(--blue-dark); border-color: var(--blue-dark); }
 
 .btn-danger {
   background: var(--red-dim);
