@@ -7,32 +7,40 @@
 
   const RESPONSES = [
     {
-      test: /price|quote|trading at|how much/i,
+      test: /price|quote|trading at|how much|current price/i,
       reply: "You can see live prices for Tesla, Apple, NVIDIA, Microsoft and Real Estate (VNQ) right on the dashboard — they refresh automatically every few seconds.",
     },
     {
-      test: /add|invest|buy|new holding/i,
-      reply: "To add a holding, click “Add Investment” above the table, pick a symbol, enter your shares and buy price, and save. It'll show up in your table right away.",
+      test: /add|invest|buy|new holding|create investment/i,
+      reply: "To add a holding, click the 'Add Investment' button above the table, pick a symbol, enter your shares and buy price, and save. It'll show up in your table right away.",
     },
     {
-      test: /delete|remove/i,
-      reply: "You can remove a holding from your own table directly. If you need a different record corrected, an admin can edit or delete any entry from the Admin panel.",
+      test: /delete|remove|edit|update|modify/i,
+      reply: "You can remove a holding from your own table directly. If you need a different record corrected, an admin can edit or delete any entry from the Admin panel at /admin.",
     },
     {
-      test: /admin|login|password/i,
-      reply: "The admin panel is at /admin. It's used to review, edit, or delete any user's investment records.",
+      test: /admin|login|password|dashboard/i,
+      reply: "The admin panel is at /admin. Use 'admin' / 'admin123' to log in. The dashboard shows your personal holdings with live prices.",
     },
     {
-      test: /real estate|vnq/i,
-      reply: "Real estate is tracked using VNQ, the Vanguard Real Estate ETF — a common stand-in for the real estate market since there's no single “real estate stock.”",
+      test: /real estate|vnq|etf/i,
+      reply: "Real estate is tracked using VNQ, the Vanguard Real Estate ETF — a common stand-in for the real estate market since there's no single 'real estate stock'.",
     },
     {
-      test: /hi|hello|hey/i,
-      reply: "Hey! I can help with adding holdings, reading your dashboard, or pointing you to the admin panel. What do you need?",
+      test: /hi|hello|hey|good morning|good afternoon/i,
+      reply: "Hey there! 👋 I'm your InvestDesk assistant. I can help with adding holdings, viewing prices, or pointing you to the admin panel. What do you need?",
     },
     {
-      test: /human|agent|real person/i,
-      reply: "I'm just a scripted assistant for this demo — there's no live agent behind me. For a real handoff you'd wire this up to a support inbox or a live WhatsApp Business number.",
+      test: /help|support|assist/i,
+      reply: "I'm here to help! You can ask me about:\n• Live prices and market data\n• Adding or managing investments\n• The admin panel\n• Real estate tracking (VNQ)\n\nJust type your question!",
+    },
+    {
+      test: /human|agent|real person|talk to human/i,
+      reply: "I'm a scripted assistant for this demo — there's no live agent behind me. For a real handoff, you'd wire this up to a support inbox or a live WhatsApp Business number.",
+    },
+    {
+      test: /thank|thanks|appreciate/i,
+      reply: "You're welcome! 😊 Let me know if you need anything else.",
     },
   ];
 
@@ -43,6 +51,7 @@
     "How do I add an investment?",
     "Where do prices come from?",
     "What is VNQ?",
+    "How do I access admin?",
   ];
 
   function fmtTime() {
@@ -375,7 +384,9 @@
     function addMessage(text, who) {
       const msg = document.createElement("div");
       msg.className = `chat-msg ${who}`;
-      msg.innerHTML = `${text}<div class="time">${fmtTime()}</div>`;
+      // Preserve line breaks in bot messages
+      const formatted = who === "bot" ? text.replace(/\n/g, "<br>") : text;
+      msg.innerHTML = `${formatted}<div class="time">${fmtTime()}</div>`;
       body.appendChild(msg);
       body.scrollTop = body.scrollHeight;
     }
@@ -431,7 +442,7 @@
         body.dataset.greeted = "1";
         showTyping(() =>
           addMessage(
-            "Hi! I'm the InvestDesk assistant. Ask me about prices, adding a holding, or the admin panel.",
+            "Hi! 👋 I'm the InvestDesk assistant. Ask me about prices, adding a holding, or the admin panel.",
             "bot"
           )
         );
