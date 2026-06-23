@@ -351,7 +351,7 @@
       gap: 0.2rem;
       border: 1px solid transparent;
     }
-    .btn-icon:hover { opacity: 0.75; }
+    .btn-icon:hover { opacity: 0.75; transform: scale(1.05); }
     .btn-icon.edit {
       background: #dbeafe;
       color: #1d4ed8;
@@ -450,6 +450,23 @@
     .toast.success { background: #0b1a2f; }
     .toast.error { background: #b91c1c; }
 
+    .sync-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: #dcfce7;
+      color: #15803d;
+      padding: 0.2rem 0.8rem;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+    .sync-badge svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+
     @media (max-width:860px) {
       .rail { width:100%; border-right:none; border-bottom:1px solid #e8edf6; }
       .login-card { padding: 2rem 1.5rem; }
@@ -530,7 +547,13 @@
               <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/></svg>
               <span class="live-dot"></span> Admin Panel
             </h1>
-            <div class="meta">Create · Edit · Delete</div>
+            <div style="display:flex; align-items:center; gap:0.8rem; flex-wrap:wrap;">
+              <span class="sync-badge">
+                <svg viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+                Syncs with Dashboard
+              </span>
+              <span class="meta">Create · Edit · Delete</span>
+            </div>
           </div>
 
           <div class="summary-strip">
@@ -756,15 +779,15 @@
               <td style="${gainClass}">${gain !== null ? '$' + gain.toFixed(2) + ' (' + (gainPct !== null ? (gainPct >= 0 ? '+' : '') + gainPct.toFixed(1) + '%)' : '—') : '—'}</td>
               <td>
                 <div class="actions-cell">
-                  <button class="btn-icon edit" data-id="${inv.id}" title="Edit">
+                  <button class="btn-icon edit" onclick="window.editInvestment(${inv.id})" title="Edit">
                     <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
                     Edit
                   </button>
-                  <button class="btn-icon delete" data-id="${inv.id}" title="Delete">
+                  <button class="btn-icon delete" onclick="window.deleteInvestment(${inv.id})" title="Delete">
                     <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
                     Delete
                   </button>
-                  <button class="btn-icon create" data-id="${inv.id}" title="Create similar">
+                  <button class="btn-icon create" onclick="window.copyInvestment(${inv.id})" title="Create similar">
                     <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
                     Copy
                   </button>
@@ -774,31 +797,6 @@
           `;
         });
         tbody.innerHTML = html;
-
-        // Attach events
-        tbody.querySelectorAll('.btn-icon.edit').forEach(btn => {
-          btn.addEventListener('click', function() {
-            const id = parseInt(this.dataset.id);
-            const inv = investments.find(i => i.id === id);
-            if (inv) openEditModal(inv, 'edit');
-          });
-        });
-        tbody.querySelectorAll('.btn-icon.delete').forEach(btn => {
-          btn.addEventListener('click', function() {
-            const id = parseInt(this.dataset.id);
-            if (confirm('Delete this investment record?')) deleteInvestment(id);
-          });
-        });
-        tbody.querySelectorAll('.btn-icon.create').forEach(btn => {
-          btn.addEventListener('click', function() {
-            const id = parseInt(this.dataset.id);
-            const inv = investments.find(i => i.id === id);
-            if (inv) {
-              const copy = { ...inv, id: null, user_name: inv.user_name + ' (copy)' };
-              openEditModal(copy, 'create');
-            }
-          });
-        });
       }
 
       function updateStats(investments, prices) {
@@ -847,6 +845,46 @@
       const modalSubmitBtn = document.getElementById('modalSubmitBtn');
 
       let currentMode = 'edit';
+
+      window.editInvestment = function(id) {
+        const inv = allInvestments.find(i => i.id === id);
+        if (inv) openEditModal(inv, 'edit');
+      };
+
+      window.deleteInvestment = async function(id) {
+        if (confirm('Delete this investment record?')) {
+          try {
+            const res = await fetch(`/api/admin/investments/${id}`, { method: 'DELETE' });
+            if (!res.ok) {
+              const err = await res.json();
+              throw new Error(err.error || 'Delete failed');
+            }
+            showToast('Investment deleted.', 'success');
+            await loadAdminData();
+            await updateTicker();
+            // Trigger dashboard update if dashboard is open
+            if (window.opener && !window.opener.closed) {
+              try {
+                window.opener.postMessage({ type: 'REFRESH_DASHBOARD' }, '*');
+              } catch (e) {}
+            }
+          } catch (e) {
+            showToast(e.message || 'Error deleting.', 'error');
+          }
+        }
+      };
+
+      window.copyInvestment = function(id) {
+        const inv = allInvestments.find(i => i.id === id);
+        if (inv) {
+          const copy = { 
+            ...inv, 
+            id: null, 
+            user_name: inv.user_name + ' (copy)' 
+          };
+          openEditModal(copy, 'create');
+        }
+      };
 
       function openEditModal(inv, mode = 'edit') {
         currentMode = mode;
@@ -917,26 +955,16 @@
           showToast(currentMode === 'create' ? 'Investment created!' : 'Investment updated!', 'success');
           await loadAdminData();
           await updateTicker();
+          // Notify dashboard to refresh
+          if (window.opener && !window.opener.closed) {
+            try {
+              window.opener.postMessage({ type: 'REFRESH_DASHBOARD' }, '*');
+            } catch (e) {}
+          }
         } catch (e) {
           showToast(e.message || 'Error.', 'error');
         }
       });
-
-      // ----- Delete -----
-      async function deleteInvestment(id) {
-        try {
-          const res = await fetch(`/api/admin/investments/${id}`, { method: 'DELETE' });
-          if (!res.ok) {
-            const err = await res.json();
-            throw new Error(err.error || 'Delete failed');
-          }
-          showToast('Investment deleted.', 'success');
-          await loadAdminData();
-          await updateTicker();
-        } catch (e) {
-          showToast(e.message || 'Error deleting.', 'error');
-        }
-      }
 
       // ----- Create New (blank) -----
       document.getElementById('createBtn').addEventListener('click', function() {
