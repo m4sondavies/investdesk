@@ -641,7 +641,6 @@
     (function() {
       const ALLOWED_SYMBOLS = ['TSLA', 'AAPL', 'NVDA', 'MSFT'];
       let allInvestments = [];
-      let currentEditId = null;
 
       // ----- Toast -----
       const toast = document.getElementById('toast');
@@ -847,20 +846,13 @@
 
       let currentMode = 'edit';
 
-      // ----- Edit Investment - FIXED -----
+      // ----- Edit Investment -----
       window.editInvestment = function(id) {
-        console.log('Edit clicked for ID:', id);
-        console.log('All investments:', allInvestments);
-        
-        // Find the investment by ID
         const inv = allInvestments.find(i => i.id === id);
-        console.log('Found investment:', inv);
-        
         if (inv) {
           openEditModal(inv, 'edit');
         } else {
           showToast('Investment not found. Please refresh.', 'error');
-          // Try to reload data
           loadAdminData();
         }
       };
@@ -905,8 +897,6 @@
       // ----- Open Edit Modal -----
       function openEditModal(inv, mode = 'edit') {
         currentMode = mode;
-        currentEditId = inv.id || null;
-        
         if (mode === 'create') {
           modalTitleText.textContent = 'Create New Investment';
           modalSubmitBtn.textContent = 'Create';
@@ -934,7 +924,7 @@
         if (e.target === editOverlay) editOverlay.classList.add('hidden'); 
       });
 
-      // ----- Submit Edit Form -----
+      // ----- Submit Edit Form - FIXED -----
       document.getElementById('editForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
@@ -952,6 +942,12 @@
           buy_price: parseFloat(editBuyPrice.value)
         };
 
+        // Validate numbers
+        if (isNaN(payload.shares) || isNaN(payload.buy_price) || payload.shares <= 0 || payload.buy_price <= 0) {
+          showToast('Please enter valid numbers for shares and buy price.', 'error');
+          return;
+        }
+
         try {
           let url, method;
           if (currentMode === 'create') {
@@ -959,7 +955,7 @@
             method = 'POST';
           } else {
             const id = parseInt(editId.value);
-            if (!id) { 
+            if (!id || isNaN(id)) { 
               showToast('Invalid record ID.', 'error'); 
               return; 
             }
@@ -967,17 +963,31 @@
             method = 'PUT';
           }
 
+          // Log the request for debugging
           console.log('Saving investment:', { url, method, payload });
 
           const res = await fetch(url, {
             method: method,
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json'
+            },
             body: JSON.stringify(payload)
           });
           
+          // Get response as text first to handle non-JSON responses
+          const responseText = await res.text();
+          console.log('Response text:', responseText);
+          
+          let responseData;
+          try {
+            responseData = JSON.parse(responseText);
+          } catch (parseError) {
+            console.error('Failed to parse JSON:', responseText);
+            throw new Error('Server returned invalid response. Please try again.');
+          }
+          
           if (!res.ok) {
-            const err = await res.json();
-            throw new Error(err.error || 'Operation failed');
+            throw new Error(responseData.error || 'Operation failed');
           }
           
           editOverlay.classList.add('hidden');
@@ -994,7 +1004,8 @@
             } catch (e) {}
           }
         } catch (e) {
-          showToast(e.message || 'Error saving investment.', 'error');
+          console.error('Error saving investment:', e);
+          showToast(e.message || 'Error saving investment. Please try again.', 'error');
         }
       });
 
