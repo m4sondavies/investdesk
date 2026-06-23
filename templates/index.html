@@ -107,6 +107,7 @@
             color: white;
             border-color: #2563eb;
             font-weight: 600;
+            cursor: pointer;
         }
         .nav-card.primary:hover {
             background: #1d4ed8;
@@ -114,6 +115,7 @@
         }
         .nav-card.outline {
             border-color: #cbd5e1;
+            cursor: pointer;
         }
         .nav-card.outline:hover {
             background: #f1f5f9;
@@ -670,8 +672,8 @@
             <a href="#" class="nav-card"><span class="icon">🌍</span> Markets</a>
             <a href="#" class="nav-card"><span class="icon">⚙️</span> Platform</a>
             <a href="#" class="nav-card"><span class="icon">💰</span> Pricing</a>
-            <a href="#" class="nav-card outline"><span class="icon">🔑</span> Log in</a>
-            <a href="#" class="nav-card primary"><span class="icon">🚀</span> Get started</a>
+            <a href="#" class="nav-card outline" id="loginNavBtn"><span class="icon">🔑</span> Log in</a>
+            <a href="#" class="nav-card primary" id="getStartedBtn"><span class="icon">🚀</span> Get started</a>
         </div>
     </nav>
 
@@ -722,7 +724,7 @@
             </div>
 
             <!-- AUTH CARD (glass) -->
-            <div class="hero-right">
+            <div class="hero-right" id="authCard">
                 <div class="card-title">Start trading</div>
                 <div class="card-sub">Create your account in 2 minutes</div>
 
@@ -747,7 +749,7 @@
                         <button type="submit" class="btn-full" id="loginBtn">Sign In</button>
                     </form>
                     <div class="demo-hint">
-                        Demo: <span>admin@investdesk.com</span> / <span>admin123</span>
+                        Demo: <span>demo@investdesk.com</span> / <span>demo123</span>
                     </div>
                 </div>
 
@@ -882,6 +884,31 @@
                 }, 3000);
             }
 
+            // ============================================================
+            // NAVBAR BUTTONS - scroll to auth card
+            // ============================================================
+            const loginNavBtn = document.getElementById('loginNavBtn');
+            const getStartedBtn = document.getElementById('getStartedBtn');
+            const authCard = document.getElementById('authCard');
+
+            if (loginNavBtn) {
+                loginNavBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    authCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // Switch to sign in tab
+                    document.querySelector('.tab-btn[data-tab="signin"]').click();
+                });
+            }
+
+            if (getStartedBtn) {
+                getStartedBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    authCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // Switch to register tab
+                    document.querySelector('.tab-btn[data-tab="register"]').click();
+                });
+            }
+
             // Tabs
             const tabBtns = document.querySelectorAll('.tab-btn');
             const forms = {
@@ -962,7 +989,9 @@
                 strengthText.style.color = color;
             });
 
-            // Users (localStorage)
+            // ============================================================
+            // DEMO USERS (localStorage)
+            // ============================================================
             function getUsers() {
                 const data = localStorage.getItem('investdesk_users');
                 return data ? JSON.parse(data) : [];
@@ -971,16 +1000,27 @@
             function saveUsers(users) {
                 localStorage.setItem('investdesk_users', JSON.stringify(users));
             }
+
+            // Initialize with demo users if none exist
             if (getUsers().length === 0) {
-                saveUsers([{ name: 'Admin', email: 'admin@investdesk.com', password: 'admin123' }]);
+                saveUsers([
+                    { name: 'Demo User', email: 'demo@investdesk.com', password: 'demo123' },
+                    { name: 'Admin', email: 'admin@investdesk.com', password: 'admin123' }
+                ]);
             }
 
-            // Login
+            // ============================================================
+            // LOGIN
+            // ============================================================
             const loginForm = document.getElementById('loginForm');
             const loginEmail = document.getElementById('loginEmail');
             const loginPassword = document.getElementById('loginPassword');
             const loginEmailErr = document.getElementById('loginEmailError');
             const loginPassErr = document.getElementById('loginPasswordError');
+
+            // Pre-fill demo credentials
+            loginEmail.value = 'demo@investdesk.com';
+            loginPassword.value = 'demo123';
 
             loginForm.addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -1005,14 +1045,18 @@
                     if (user) {
                         showToast('Welcome back, ' + user.name + '!', 'success');
                         sessionStorage.setItem('investdesk_user', JSON.stringify(user));
-                        setTimeout(() => { window.location.href = '/dashboard.html'; }, 600);
+                        setTimeout(() => {
+                            window.location.href = '/dashboard';
+                        }, 600);
                     } else {
-                        showToast('Invalid email or password.', 'error');
+                        showToast('Invalid email or password. Try demo@investdesk.com / demo123', 'error');
                     }
                 }, 800);
             });
 
-            // Register
+            // ============================================================
+            // REGISTER
+            // ============================================================
             const regForm = document.getElementById('registerFormEl');
             const regName = document.getElementById('regName');
             const regEmail = document.getElementById('regEmail');
@@ -1063,7 +1107,9 @@
                     saveUsers(users);
                     sessionStorage.setItem('investdesk_user', JSON.stringify(newUser));
                     showToast('Account created! Welcome ' + name, 'success');
-                    setTimeout(() => { window.location.href = '/dashboard.html'; }, 700);
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 700);
                 }, 900);
             });
 
@@ -1114,14 +1160,12 @@
                 }
             });
 
-            // Pre-fill demo login
-            loginEmail.value = 'admin@investdesk.com';
-            loginPassword.value = 'admin123';
-
-            // Check if already logged in
+            // ============================================================
+            // CHECK IF ALREADY LOGGED IN
+            // ============================================================
             const existingUser = sessionStorage.getItem('investdesk_user');
             if (existingUser && (window.location.pathname.endsWith('index.html') || window.location.pathname === '/')) {
-                window.location.href = '/dashboard.html';
+                window.location.href = '/dashboard';
             }
         })();
     </script>
