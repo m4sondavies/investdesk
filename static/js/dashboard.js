@@ -58,7 +58,7 @@ function renderTickerTape(prices) {
 }
 
 /* ---------------------------------------------------------------------
-   Asset cards
+   Asset cards with sparklines
    --------------------------------------------------------------------- */
 
 function sparklinePath(values, w, h) {
@@ -269,15 +269,15 @@ function setupAddModal() {
       body: JSON.stringify({
         user_name: getUserName(),
         symbol,
-        shares,
-        buy_price: buyPrice,
+        shares: parseFloat(shares),
+        buy_price: parseFloat(buyPrice),
       }),
     });
 
     if (res.ok) {
       overlay.classList.add("hidden");
       form.reset();
-      showToast("Investment added");
+      showToast("Investment added ✅");
       renderHoldings();
     } else {
       const err = await res.json();
@@ -376,10 +376,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     .mono-cell { font-family: 'JetBrains Mono', 'SF Mono', monospace; font-size: 0.8rem; }
     .tabular { font-variant-numeric: tabular-nums; }
+
+    /* Summary value colors */
+    .value.up { color: #22c55e; }
+    .value.down { color: #ef4444; }
   `;
   document.head.appendChild(style);
 
-  document.getElementById("currentUserLabel").textContent = getUserName();
+  // Set user name in sidebar
+  const userLabel = document.getElementById("currentUserLabel");
+  if (userLabel) {
+    userLabel.textContent = getUserName();
+  }
+
   setupAddModal();
   pollPrices();
   setInterval(pollPrices, POLL_MS);
