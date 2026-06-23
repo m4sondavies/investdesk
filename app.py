@@ -16,6 +16,7 @@ import threading
 from datetime import datetime
 from functools import wraps
 import json
+import traceback
 
 from flask import Flask, jsonify, request, session, send_from_directory, g
 from flask_cors import CORS
@@ -157,21 +158,6 @@ def admin_required(fn):
 
 
 # ---------------------------------------------------------------------------
-# Helper to safely parse JSON
-# ---------------------------------------------------------------------------
-
-def safe_get_json():
-    """Safely parse JSON from request body with error handling."""
-    try:
-        if request.data:
-            return request.get_json(force=True) or {}
-        return {}
-    except Exception as e:
-        # If JSON parsing fails, return an empty dict with error info
-        return {"_json_error": str(e)}
-
-
-# ---------------------------------------------------------------------------
 # Routes — static frontend
 # ---------------------------------------------------------------------------
 
@@ -215,18 +201,23 @@ def api_prices():
 
 @app.route("/api/investments", methods=["GET"])
 def list_investments():
-    user_name = request.args.get("user_name", "").strip()
-    db = get_db()
-    if user_name:
-        rows = db.execute(
-            "SELECT * FROM investments WHERE user_name = ? ORDER BY created_at DESC",
-            (user_name,),
-        ).fetchall()
-    else:
-        rows = db.execute(
-            "SELECT * FROM investments ORDER BY created_at DESC"
-        ).fetchall()
-    return jsonify([dict(r) for r in rows])
+    try:
+        user_name = request.args.get("user_name", "").strip()
+        db = get_db()
+        if user_name:
+            rows = db.execute(
+                "SELECT * FROM investments WHERE user_name = ? ORDER BY created_at DESC",
+                (user_name,),
+            ).fetchall()
+        else:
+            rows = db.execute(
+                "SELECT * FROM investments ORDER BY created_at DESC"
+            ).fetchall()
+        return jsonify([dict(r) for r in rows])
+    except Exception as e:
+        print(f"Error in list_investments: {e}")
+        print(traceback.format_exc())
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/api/investments", methods=["POST"])
@@ -235,31 +226,37 @@ def create_investment():
     try:
         payload = request.get_json(force=True) or {}
     except Exception as e:
+        print(f"JSON parse error: {e}")
         return jsonify({"error": f"Invalid JSON: {str(e)}"}), 400
     
-    user_name = (payload.get("user_name") or "").strip()
-    email = (payload.get("email") or "").strip()
-    symbol = (payload.get("symbol") or "").strip().upper()
-    shares = payload.get("shares")
-    buy_price = payload.get("buy_price")
-
-    if not user_name or symbol not in TICKERS or shares is None or buy_price is None:
-        return jsonify({"error": "user_name, valid symbol, shares, and buy_price are required"}), 400
-
     try:
-        shares = float(shares)
-        buy_price = float(buy_price)
-    except (TypeError, ValueError):
-        return jsonify({"error": "shares and buy_price must be numbers"}), 400
+        user_name = (payload.get("user_name") or "").strip()
+        email = (payload.get("email") or "").strip()
+        symbol = (payload.get("symbol") or "").strip().upper()
+        shares = payload.get("shares")
+        buy_price = payload.get("buy_price")
 
-    db = get_db()
-    cur = db.execute(
-        "INSERT INTO investments (user_name, email, symbol, shares, buy_price, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-        (user_name, email, symbol, shares, buy_price, datetime.utcnow().isoformat()),
-    )
-    db.commit()
-    new_row = db.execute("SELECT * FROM investments WHERE id = ?", (cur.lastrowid,)).fetchone()
-    return jsonify(dict(new_row)), 201
+        if not user_name or symbol not in TICKERS or shares is None or buy_price is None:
+            return jsonify({"error": "user_name, valid symbol, shares, and buy_price are required"}), 400
+
+        try:
+            shares = float(shares)
+            buy_price = float(buy_price)
+        except (TypeError, ValueError):
+            return jsonify({"error": "shares and buy_price must be numbers"}), 400
+
+        db = get_db()
+        cur = db.execute(
+            "INSERT INTO investments (user_name, email, symbol, shares, buy_price, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+            (user_name, email, symbol, shares, buy_price, datetime.utcnow().isoformat()),
+        )
+        db.commit()
+        new_row = db.execute("SELECT * FROM investments WHERE id = ?", (cur.lastrowid,)).fetchone()
+        return jsonify(dict(new_row)), 201
+    except Exception as e:
+        print(f"Error in create_investment: {e}")
+        print(traceback.format_exc())
+        return jsonify({"error": str(e)}), 500
 
 
 # ---------------------------------------------------------------------------
@@ -271,6 +268,7 @@ def admin_login():
     try:
         payload = request.get_json(force=True) or {}
     except Exception as e:
+        print(f"JSON parse error: {e}")
         return jsonify({"error": f"Invalid JSON: {str(e)}"}), 400
     
     username = payload.get("username", "")
@@ -289,7 +287,11 @@ def admin_logout():
 
 @app.route("/api/admin/session")
 def admin_session():
-    return jsonify({"is_admin": bool(session.get("is_admin"))})
+    try:
+        return jsonify({"is_admin": bool(session.get("is_admin"))})
+    except Exception as e:
+        print(f"Error in admin_session: {e}")
+        return jsonify({"error": str(e)}), 500
 
 
 # ---------------------------------------------------------------------------
@@ -299,9 +301,14 @@ def admin_session():
 @app.route("/api/admin/investments", methods=["GET"])
 @admin_required
 def admin_list_investments():
-    db = get_db()
-    rows = db.execute("SELECT * FROM investments ORDER BY created_at DESC").fetchall()
-    return jsonify([dict(r) for r in rows])
+    try:
+        db = get_db()
+        rows = db.execute("SELECT * FROM investments ORDER BY created_at DESC").fetchall()
+        return jsonify([dict(r) for r in rows])
+    except Exception as e:
+        print(f"Error in admin_list_investments: {e}")
+        print(traceback.format_exc())
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/api/admin/investments", methods=["POST"])
@@ -311,31 +318,37 @@ def admin_create_investment():
     try:
         payload = request.get_json(force=True) or {}
     except Exception as e:
+        print(f"JSON parse error: {e}")
         return jsonify({"error": f"Invalid JSON: {str(e)}"}), 400
     
-    user_name = (payload.get("user_name") or "").strip()
-    email = (payload.get("email") or "").strip()
-    symbol = (payload.get("symbol") or "").strip().upper()
-    shares = payload.get("shares")
-    buy_price = payload.get("buy_price")
-
-    if not user_name or symbol not in TICKERS or shares is None or buy_price is None:
-        return jsonify({"error": "user_name, symbol, shares, and buy_price are required"}), 400
-
     try:
-        shares = float(shares)
-        buy_price = float(buy_price)
-    except (TypeError, ValueError):
-        return jsonify({"error": "shares and buy_price must be numbers"}), 400
+        user_name = (payload.get("user_name") or "").strip()
+        email = (payload.get("email") or "").strip()
+        symbol = (payload.get("symbol") or "").strip().upper()
+        shares = payload.get("shares")
+        buy_price = payload.get("buy_price")
 
-    db = get_db()
-    cur = db.execute(
-        "INSERT INTO investments (user_name, email, symbol, shares, buy_price, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-        (user_name, email, symbol, shares, buy_price, datetime.utcnow().isoformat()),
-    )
-    db.commit()
-    new_row = db.execute("SELECT * FROM investments WHERE id = ?", (cur.lastrowid,)).fetchone()
-    return jsonify(dict(new_row)), 201
+        if not user_name or symbol not in TICKERS or shares is None or buy_price is None:
+            return jsonify({"error": "user_name, symbol, shares, and buy_price are required"}), 400
+
+        try:
+            shares = float(shares)
+            buy_price = float(buy_price)
+        except (TypeError, ValueError):
+            return jsonify({"error": "shares and buy_price must be numbers"}), 400
+
+        db = get_db()
+        cur = db.execute(
+            "INSERT INTO investments (user_name, email, symbol, shares, buy_price, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+            (user_name, email, symbol, shares, buy_price, datetime.utcnow().isoformat()),
+        )
+        db.commit()
+        new_row = db.execute("SELECT * FROM investments WHERE id = ?", (cur.lastrowid,)).fetchone()
+        return jsonify(dict(new_row)), 201
+    except Exception as e:
+        print(f"Error in admin_create_investment: {e}")
+        print(traceback.format_exc())
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/api/admin/investments/<int:investment_id>", methods=["PUT"])
@@ -344,47 +357,58 @@ def admin_update_investment(investment_id):
     try:
         payload = request.get_json(force=True) or {}
     except Exception as e:
+        print(f"JSON parse error: {e}")
         return jsonify({"error": f"Invalid JSON: {str(e)}"}), 400
     
-    db = get_db()
-    existing = db.execute("SELECT * FROM investments WHERE id = ?", (investment_id,)).fetchone()
-    if not existing:
-        return jsonify({"error": "Investment not found"}), 404
-
-    user_name = payload.get("user_name", existing["user_name"])
-    email = payload.get("email", existing.get("email", ""))
-    symbol = (payload.get("symbol", existing["symbol"]) or "").upper()
-    shares = payload.get("shares", existing["shares"])
-    buy_price = payload.get("buy_price", existing["buy_price"])
-
-    if symbol not in TICKERS:
-        return jsonify({"error": f"symbol must be one of {list(TICKERS.keys())}"}), 400
-
     try:
-        shares = float(shares)
-        buy_price = float(buy_price)
-    except (TypeError, ValueError):
-        return jsonify({"error": "shares and buy_price must be numbers"}), 400
+        db = get_db()
+        existing = db.execute("SELECT * FROM investments WHERE id = ?", (investment_id,)).fetchone()
+        if not existing:
+            return jsonify({"error": "Investment not found"}), 404
 
-    db.execute(
-        "UPDATE investments SET user_name = ?, email = ?, symbol = ?, shares = ?, buy_price = ? WHERE id = ?",
-        (user_name, email, symbol, shares, buy_price, investment_id),
-    )
-    db.commit()
-    updated = db.execute("SELECT * FROM investments WHERE id = ?", (investment_id,)).fetchone()
-    return jsonify(dict(updated))
+        user_name = payload.get("user_name", existing["user_name"])
+        email = payload.get("email", existing.get("email", ""))
+        symbol = (payload.get("symbol", existing["symbol"]) or "").upper()
+        shares = payload.get("shares", existing["shares"])
+        buy_price = payload.get("buy_price", existing["buy_price"])
+
+        if symbol not in TICKERS:
+            return jsonify({"error": f"symbol must be one of {list(TICKERS.keys())}"}), 400
+
+        try:
+            shares = float(shares)
+            buy_price = float(buy_price)
+        except (TypeError, ValueError):
+            return jsonify({"error": "shares and buy_price must be numbers"}), 400
+
+        db.execute(
+            "UPDATE investments SET user_name = ?, email = ?, symbol = ?, shares = ?, buy_price = ? WHERE id = ?",
+            (user_name, email, symbol, shares, buy_price, investment_id),
+        )
+        db.commit()
+        updated = db.execute("SELECT * FROM investments WHERE id = ?", (investment_id,)).fetchone()
+        return jsonify(dict(updated))
+    except Exception as e:
+        print(f"Error in admin_update_investment: {e}")
+        print(traceback.format_exc())
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/api/admin/investments/<int:investment_id>", methods=["DELETE"])
 @admin_required
 def admin_delete_investment(investment_id):
-    db = get_db()
-    existing = db.execute("SELECT * FROM investments WHERE id = ?", (investment_id,)).fetchone()
-    if not existing:
-        return jsonify({"error": "Investment not found"}), 404
-    db.execute("DELETE FROM investments WHERE id = ?", (investment_id,))
-    db.commit()
-    return jsonify({"ok": True, "deleted_id": investment_id})
+    try:
+        db = get_db()
+        existing = db.execute("SELECT * FROM investments WHERE id = ?", (investment_id,)).fetchone()
+        if not existing:
+            return jsonify({"error": "Investment not found"}), 404
+        db.execute("DELETE FROM investments WHERE id = ?", (investment_id,))
+        db.commit()
+        return jsonify({"ok": True, "deleted_id": investment_id})
+    except Exception as e:
+        print(f"Error in admin_delete_investment: {e}")
+        print(traceback.format_exc())
+        return jsonify({"error": str(e)}), 500
 
 
 # ---------------------------------------------------------------------------
@@ -404,6 +428,11 @@ def internal_error(error):
 @app.errorhandler(400)
 def bad_request(error):
     return jsonify({"error": "Bad request"}), 400
+
+
+@app.errorhandler(405)
+def method_not_allowed(error):
+    return jsonify({"error": "Method not allowed"}), 405
 
 
 # ---------------------------------------------------------------------------
