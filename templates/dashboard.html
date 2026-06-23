@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
   <style>
+    /* ... (same CSS as before) ... */
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
       font-family: 'Inter', system-ui, sans-serif;
@@ -186,6 +187,23 @@
       border: 1px solid rgba(0,0,0,0.04);
     }
     .meta svg { width: 16px; height: 16px; fill: #64748b; }
+
+    .sync-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: #dbeafe;
+      color: #1d4ed8;
+      padding: 0.2rem 0.8rem;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+    .sync-badge svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
 
     .summary-strip {
       display: grid;
@@ -457,7 +475,7 @@
           <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
           Dashboard
         </a>
-        <a class="rail-link" href="/admin">
+        <a class="rail-link" href="/admin" target="_blank">
           <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/></svg>
           Admin panel
         </a>
@@ -477,9 +495,15 @@
           <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
           <span class="live-dot"></span> Markets
         </h1>
-        <div class="meta">
-          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-.5-13v4h-5v2h5v4l5-5z"/></svg>
-          <span id="lastUpdated">Updated: Loading...</span>
+        <div style="display:flex; align-items:center; gap:0.8rem; flex-wrap:wrap;">
+          <span class="sync-badge">
+            <svg viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+            Live Sync
+          </span>
+          <div class="meta">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-.5-13v4h-5v2h5v4l5-5z"/></svg>
+            <span id="lastUpdated">Updated: Loading...</span>
+          </div>
         </div>
       </div>
 
@@ -748,6 +772,15 @@
         track.innerHTML = html + html;
       }
 
+      // ----- Refresh all data -----
+      async function refreshAll() {
+        await Promise.all([
+          updateTicker(),
+          updateAssetGrid(),
+          updateHoldings()
+        ]);
+      }
+
       // ----- Create Investment -----
       const overlay = document.getElementById('createModalOverlay');
       const openBtn = document.getElementById('openCreateModal');
@@ -822,11 +855,7 @@
           showToast('✅ Investment created successfully!', 'success');
           
           // Immediately refresh all data
-          await Promise.all([
-            updateHoldings(),
-            updateAssetGrid(),
-            updateTicker()
-          ]);
+          await refreshAll();
           
         } catch (e) {
           showToast('❌ ' + (e.message || 'Error creating investment.'), 'error');
@@ -835,6 +864,15 @@
           submitBtn.disabled = false;
           submitText.textContent = 'Create Investment';
           submitSpinner.classList.add('hidden');
+        }
+      });
+
+      // ----- Listen for messages from admin panel -----
+      window.addEventListener('message', function(event) {
+        if (event.data && event.data.type === 'REFRESH_DASHBOARD') {
+          console.log('Dashboard refresh triggered by admin panel');
+          refreshAll();
+          showToast('🔄 Dashboard synced with admin changes', 'success');
         }
       });
 
@@ -847,27 +885,11 @@
           '<tr><td colspan="6" style="text-align:center;color:#64748b;padding:2rem;">Loading your investments...</td></tr>';
         
         // Initial load
-        await Promise.all([
-          updateTicker(),
-          updateAssetGrid(),
-          updateHoldings()
-        ]);
-        
-        // Update time
-        const now = new Date();
-        document.getElementById('lastUpdated').textContent = 
-          'Updated: ' + now.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) +
-          ', ' + now.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+        await refreshAll();
         
         // Auto-refresh every 15 seconds
         if (refreshInterval) clearInterval(refreshInterval);
-        refreshInterval = setInterval(async () => {
-          await Promise.all([
-            updateTicker(),
-            updateAssetGrid(),
-            updateHoldings()
-          ]);
-        }, 15000);
+        refreshInterval = setInterval(refreshAll, 15000);
       }
 
       // Start the app
