@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>InvestDesk · Trade Smarter</title>
+    <!-- Inter & Space Grotesk -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            color: #0b1a2f;
+            line-height: 1.5;
+            background: #f8fafc;
+        }
+
+        /* ----- TOP RISK BANNER ----- */
+        .risk-banner {
+            background: #0b1a2f;
+            color: #94a3b8;
+            text-align: center;
+            font-size: 0.7rem;
+            padding: 0.4rem 1rem;
+            letter-spacing: 0.01em;
+            border-bottom: 1px solid #1e2d45;
+            position: relative;
+            z-index: 5;
+        }
+        .risk-banner strong {
+            color: #f8fafc;
+            font-weight: 600;
+        }
+        .risk-banner .highlight {
+            color: #f87171;
+        }
+
+        /* ----- NAVBAR (glass) ----- */
+        .navbar {
+            padding: 0.7rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.8rem 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .nav-brand {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 1.4rem;
+            letter-spacing: -0.03em;
+            color: #0b1a2f;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .nav-brand svg {
+            width: 26px;
+            height: 26px;
+            fill: #2563eb;
+        }
+
+        /* --- Navigation Cards (short cards) --- */
+        .nav-cards {
+            display: flex;
+            gap: 0.4rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .nav-card {
+            background: transparent;
+            padding: 0.4rem 1rem;
+            border-radius: 40px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: #334155;
+            text-decoration: none;
+            transition: 0.15s;
+            border: 1px solid transparent;
+            cursor: default;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .nav-card:hover {
+            background: #f1f5f9;
+            border-color: #e2e8f0;
+        }
+        .nav-card .icon {
+            font-size: 1rem;
+            line-height: 1;
+        }
+        .nav-card.primary {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+            font-weight: 600;
+        }
+        .nav-card.primary:hover {
+            background: #1d4ed8;
+            border-color: #1d4ed8;
+        }
+        .nav-card.outline {
+            border-color: #cbd5e1;
+        }
+        .nav-card.outline:hover {
+            background: #f1f5f9;
+        }
+
+        /* ===== HERO WITH BACKGROUND IMAGE ===== */
+        .hero-wrapper {
+            position: relative;
+            min-height: 82vh;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            background:
+                linear-gradient(135deg, rgba(11, 26, 47, 0.70) 0%, rgba(11, 26, 47, 0.35) 60%, rgba(37, 99, 235, 0.20) 100%),
+                url('https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat;
+            filter: saturate(1.1);
+        }
+        .hero {
+            position: relative;
+            z-index: 2;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 2.5rem 2rem 4rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 3rem;
+            width: 100%;
+        }
+
+        /* ----- TICKER (inside hero, above content) ----- */
+        .ticker-wrap {
+            width: 100%;
+            margin-bottom: 0.5rem;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(4px);
+            border-radius: 60px;
+            padding: 0.3rem 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.10);
+            overflow: hidden;
+        }
+        .ticker-track {
+            display: flex;
+            gap: 2.5rem;
+            animation: tickerScroll 40s linear infinite;
+            white-space: nowrap;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.85);
+            padding: 0.2rem 0;
+            width: max-content;
+        }
+        .ticker-track .item .sym {
+            font-weight: 700;
+            color: #ffffff;
+            margin-right: 0.2rem;
+        }
+        .ticker-track .item .up {
+            color: #4ade80;
+        }
+        .ticker-track .item .down {
+            color: #f87171;
+        }
+        @keyframes tickerScroll {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        .hero-left {
+            flex: 1 1 460px;
+            color: #ffffff;
+        }
+        .hero-badge {
+            display: inline-block;
+            background: rgba(37, 99, 235, 0.25);
+            backdrop-filter: blur(4px);
+            color: #bfdbfe;
+            font-weight: 600;
+            font-size: 0.7rem;
+            letter-spacing: 0.04em;
+            padding: 0.25rem 1rem;
+            border-radius: 60px;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(191, 219, 254, 0.25);
+        }
+        .hero-left h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3.4rem;
+            font-weight: 700;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            color: #ffffff;
+            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+        }
+        .hero-left h1 .highlight {
+            color: #60a5fa;
+        }
+        .hero-left .sub {
+            font-size: 1.05rem;
+            color: rgba(255, 255, 255, 0.85);
+            margin: 1rem 0 1.6rem;
+            max-width: 480px;
+            line-height: 1.6;
+            text-shadow: 0 1px 12px rgba(0, 0, 0, 0.15);
+        }
+        .hero-stats-row {
+            display: flex;
+            gap: 2.5rem;
+            padding-top: 1.2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .hero-stats-row .stat .num {
+            font-family: 'Space Grotesk', monospace;
+            font-weight: 700;
+            font-size: 1.6rem;
+            color: #ffffff;
+        }
+        .hero-stats-row .stat .lbl {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.7);
+            letter-spacing: 0.04em;
+        }
+
+        /* Auth card (glass) */
+        .hero-right {
+            flex: 0 0 400px;
+            max-width: 100%;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            border-radius: 32px;
+            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 2rem 2rem 1.8rem;
+        }
+        .hero-right .card-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+            font-size: 1.4rem;
+            color: #0b1a2f;
+            margin-bottom: 0.2rem;
+        }
+        .hero-right .card-sub {
+            font-size: 0.85rem;
+            color: #475569;
+            margin-bottom: 1.5rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            background: #f1f5f9;
+            border-radius: 60px;
+            padding: 0.25rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #e9edf3;
+        }
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 0.5rem 0;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.12s;
+            color: #64748b;
+            font-family: 'Inter', sans-serif;
+        }
+        .tab-btn.active {
+            background: #ffffff;
+            color: #0b1a2f;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        .tab-btn:hover:not(.active) {
+            color: #0b1a2f;
+        }
+
+        .form-group {
+            display: none;
+        }
+        .form-group.active {
+            display: block;
+        }
+
+        .field {
+            margin-bottom: 1rem;
+        }
+        .field label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: #334155;
+            margin-bottom: 0.2rem;
+        }
+        .field input {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            background: #fafcff;
+            font-size: 0.95rem;
+            transition: 0.12s;
+            font-family: 'Inter', sans-serif;
+        }
+        .field input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+        }
+        .field input.error {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+        .field input.success {
+            border-color: #22c55e;
+            background: #f0fdf4;
+        }
+        .error-msg {
+            font-size: 0.7rem;
+            color: #ef4444;
+            margin-top: 0.2rem;
+            display: none;
+        }
+        .error-msg.show {
+            display: block;
+        }
+
+        .btn-full {
+            width: 100%;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.12s;
+            font-family: 'Inter', sans-serif;
+            background: #2563eb;
+            color: white;
+        }
+        .btn-full:hover {
+            background: #1d4ed8;
+        }
+        .btn-full:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .demo-hint {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #94a3b8;
+            margin-top: 1.2rem;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 1rem;
+        }
+        .demo-hint span {
+            background: #f1f5f9;
+            padding: 0.15rem 0.7rem;
+            border-radius: 40px;
+            font-family: monospace;
+            font-size: 0.65rem;
+            color: #0b1a2f;
+        }
+
+        .strength-bar {
+            height: 4px;
+            border-radius: 4px;
+            margin-top: 0.3rem;
+            background: #e2e8f0;
+            overflow: hidden;
+        }
+        .strength-bar .fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 4px;
+            transition: 0.3s;
+        }
+        .strength-text {
+            font-size: 0.65rem;
+            color: #64748b;
+            margin-top: 0.2rem;
+            display: block;
+        }
+
+        /* ----- FEATURES SECTION ----- */
+        .features-section {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 3rem 2rem 3rem;
+            background: #ffffff;
+        }
+        .features-section .section-label {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        .features-section .section-sub {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 2.5rem;
+            font-size: 1rem;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        .feature-card {
+            background: #f8fafc;
+            padding: 1.8rem 1.2rem 1.2rem;
+            border-radius: 24px;
+            border: 1px solid #e9edf3;
+            text-align: center;
+            transition: 0.15s;
+        }
+        .feature-card:hover {
+            border-color: #bfdbfe;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.03);
+        }
+        .feature-card .icon {
+            font-size: 2.2rem;
+            margin-bottom: 0.6rem;
+        }
+        .feature-card h3 {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.3rem;
+        }
+        .feature-card p {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        /* ----- TESTIMONIALS ----- */
+        .testimonials-section {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 2rem 2rem 3rem;
+            background: #f8fafc;
+        }
+        .testimonials-section .section-label {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.8rem;
+        }
+        .testimonial-card {
+            background: #ffffff;
+            padding: 1.5rem 1.4rem 1.2rem;
+            border-radius: 24px;
+            border: 1px solid #e9edf3;
+            transition: 0.15s;
+        }
+        .testimonial-card:hover {
+            border-color: #bfdbfe;
+        }
+        .testimonial-card .person {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 0.6rem;
+        }
+        .testimonial-card .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 60px;
+            object-fit: cover;
+            border: 2px solid white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+        }
+        .testimonial-card .name {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+        .testimonial-card .role {
+            font-size: 0.7rem;
+            color: #2563eb;
+            font-weight: 500;
+        }
+        .testimonial-card .stars {
+            color: #f59e0b;
+            letter-spacing: 2px;
+            font-size: 0.85rem;
+            margin-bottom: 0.3rem;
+        }
+        .testimonial-card .quote {
+            font-size: 0.9rem;
+            color: #1e293b;
+            line-height: 1.5;
+            font-style: italic;
+        }
+        .testimonial-card .check {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.7rem;
+            color: #22c55e;
+            font-weight: 600;
+            margin-top: 0.6rem;
+        }
+        .testimonial-card .check svg {
+            width: 16px;
+            height: 16px;
+            fill: #22c55e;
+        }
+
+        /* ----- RISK FOOTER ----- */
+        .risk-footer {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 2rem 2rem 1.5rem;
+            border-top: 1px solid #e9edf3;
+            font-size: 0.7rem;
+            color: #94a3b8;
+            text-align: center;
+            line-height: 1.6;
+            background: #ffffff;
+        }
+        .risk-footer strong {
+            color: #0b1a2f;
+        }
+        .risk-footer .highlight {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        .toast {
+            position: fixed;
+            top: 5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0b1a2f;
+            color: white;
+            padding: 0.7rem 2rem;
+            border-radius: 60px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            opacity: 0;
+            transition: opacity 0.25s, transform 0.25s;
+            pointer-events: none;
+            z-index: 999;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .toast.success {
+            background: #0b1a2f;
+        }
+        .toast.error {
+            background: #b91c1c;
+        }
+
+        @media (max-width: 860px) {
+            .hero {
+                padding: 2rem 1rem;
+                gap: 2rem;
+            }
+            .hero-left h1 {
+                font-size: 2.4rem;
+            }
+            .hero-right {
+                flex: 0 0 100%;
+            }
+            .navbar {
+                padding: 0.6rem 1rem;
+                background: rgba(255, 255, 255, 0.95);
+            }
+            .nav-cards {
+                gap: 0.3rem;
+            }
+            .nav-card {
+                font-size: 0.75rem;
+                padding: 0.3rem 0.7rem;
+            }
+            .features-section {
+                padding: 2rem 1rem;
+            }
+            .testimonials-section {
+                padding: 1.5rem 1rem 2rem;
+            }
+            .hero-wrapper {
+                min-height: 70vh;
+            }
+            .ticker-track {
+                font-size: 0.7rem;
+                gap: 1.5rem;
+            }
+        }
+        @media (max-width: 480px) {
+            .hero-stats-row {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+            .hero-right {
+                padding: 1.5rem 1.2rem;
+            }
+            .testimonial-grid {
+                grid-template-columns: 1fr;
+            }
+            .features-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .hero-left h1 {
+                font-size: 2rem;
+            }
+            .nav-brand {
+                font-size: 1.2rem;
+            }
+            .nav-card {
+                font-size: 0.7rem;
+                padding: 0.2rem 0.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- RISK BANNER -->
+    <div class="risk-banner">
+        <strong>Risk warning:</strong> 78.48% of retail investors lose money when trading CFDs with this provider.
+        <span class="highlight">Ensure you understand the risks.</span>
+    </div>
+
+    <!-- NAVBAR with short cards -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+            INVESTDESK
+        </div>
+        <div class="nav-cards">
+            <a href="#" class="nav-card"><span class="icon">📈</span> Trade</a>
+            <a href="#" class="nav-card"><span class="icon">🌍</span> Markets</a>
+            <a href="#" class="nav-card"><span class="icon">⚙️</span> Platform</a>
+            <a href="#" class="nav-card"><span class="icon">💰</span> Pricing</a>
+            <a href="#" class="nav-card outline"><span class="icon">🔑</span> Log in</a>
+            <a href="#" class="nav-card primary"><span class="icon">🚀</span> Get started</a>
+        </div>
+    </nav>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ===== HERO WITH BACKGROUND IMAGE ===== -->
+    <div class="hero-wrapper">
+        <div class="hero-bg"></div>
+
+        <div class="hero">
+            <!-- TICKER (inside hero) -->
+            <div class="ticker-wrap">
+                <div class="ticker-track">
+                    <span class="item"><span class="sym">TSLA</span> $243.50 <span class="up">▲ 1.2%</span></span>
+                    <span class="item"><span class="sym">AAPL</span> $178.20 <span class="up">▲ 0.6%</span></span>
+                    <span class="item"><span class="sym">NVDA</span> $875.40 <span class="up">▲ 2.4%</span></span>
+                    <span class="item"><span class="sym">MSFT</span> $415.10 <span class="down">▼ 0.2%</span></span>
+                    <span class="item"><span class="sym">VNQ</span> $89.70 <span class="up">▲ 0.3%</span></span>
+                    <span class="item"><span class="sym">BTC</span> $62,450 <span class="up">▲ 1.8%</span></span>
+                    <span class="item"><span class="sym">ETH</span> $3,210 <span class="up">▲ 0.9%</span></span>
+                    <!-- Duplicate for seamless loop -->
+                    <span class="item"><span class="sym">TSLA</span> $243.50 <span class="up">▲ 1.2%</span></span>
+                    <span class="item"><span class="sym">AAPL</span> $178.20 <span class="up">▲ 0.6%</span></span>
+                    <span class="item"><span class="sym">NVDA</span> $875.40 <span class="up">▲ 2.4%</span></span>
+                    <span class="item"><span class="sym">MSFT</span> $415.10 <span class="down">▼ 0.2%</span></span>
+                    <span class="item"><span class="sym">VNQ</span> $89.70 <span class="up">▲ 0.3%</span></span>
+                    <span class="item"><span class="sym">BTC</span> $62,450 <span class="up">▲ 1.8%</span></span>
+                    <span class="item"><span class="sym">ETH</span> $3,210 <span class="up">▲ 0.9%</span></span>
+                </div>
+            </div>
+
+            <div class="hero-left">
+                <div class="hero-badge">🔹 Insight markets. Trade smart.</div>
+                <h1>
+                    Global <span class="highlight">CFD</span> trading<br />
+                    5500+ instruments
+                </h1>
+                <p class="sub">
+                    Trade stocks, crypto, indices, commodities &amp; more on a
+                    transparent, low-cost platform built for every device.
+                </p>
+                <div class="hero-stats-row">
+                    <div class="stat"><div class="num">5500+</div><div class="lbl">Markets</div></div>
+                    <div class="stat"><div class="num">0</div><div class="lbl">Deposit fees</div></div>
+                    <div class="stat"><div class="num">24/7</div><div class="lbl">Human investment</div></div>
+                </div>
+            </div>
+
+            <!-- AUTH CARD (glass) -->
+            <div class="hero-right">
+                <div class="card-title">Start trading</div>
+                <div class="card-sub">Create your account in 2 minutes</div>
+
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="signin">Sign In</button>
+                    <button class="tab-btn" data-tab="register">Register</button>
+                </div>
+
+                <!-- SIGN IN -->
+                <div class="form-group active" id="signinForm">
+                    <form id="loginForm" novalidate>
+                        <div class="field">
+                            <label for="loginEmail">Email</label>
+                            <input type="email" id="loginEmail" placeholder="alex@fund.com" required />
+                            <div class="error-msg" id="loginEmailError">Valid email required.</div>
+                        </div>
+                        <div class="field">
+                            <label for="loginPassword">Password</label>
+                            <input type="password" id="loginPassword" placeholder="••••••••" required />
+                            <div class="error-msg" id="loginPasswordError">Password required.</div>
+                        </div>
+                        <button type="submit" class="btn-full" id="loginBtn">Sign In</button>
+                    </form>
+                    <div class="demo-hint">
+                        Demo: <span>admin@investdesk.com</span> / <span>admin123</span>
+                    </div>
+                </div>
+
+                <!-- REGISTER -->
+                <div class="form-group" id="registerForm">
+                    <form id="registerFormEl" novalidate>
+                        <div class="field">
+                            <label for="regName">Full name</label>
+                            <input type="text" id="regName" placeholder="Alexandra Chen" required />
+                            <div class="error-msg" id="regNameError">Name required.</div>
+                        </div>
+                        <div class="field">
+                            <label for="regEmail">Email</label>
+                            <input type="email" id="regEmail" placeholder="alex@fund.com" required />
+                            <div class="error-msg" id="regEmailError">Valid email required.</div>
+                            <div class="error-msg" id="regEmailExistsError" style="display:none;">Email already registered.</div>
+                        </div>
+                        <div class="field">
+                            <label for="regPassword">Password</label>
+                            <input type="password" id="regPassword" placeholder="Min 6 characters" required />
+                            <div class="strength-bar"><div class="fill" id="strengthFill"></div></div>
+                            <span class="strength-text" id="strengthText">Password strength</span>
+                            <div class="error-msg" id="regPasswordError">Min 6 characters.</div>
+                        </div>
+                        <div class="field">
+                            <label for="regConfirm">Confirm password</label>
+                            <input type="password" id="regConfirm" placeholder="••••••••" required />
+                            <div class="error-msg" id="regConfirmError">Passwords must match.</div>
+                        </div>
+                        <button type="submit" class="btn-full" id="registerBtn">Create Account</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FEATURES -->
+    <section class="features-section">
+        <div class="section-label">Different pages, <span style="color: #2563eb;">one system</span></div>
+        <div class="section-sub">Multi-platform, all markets, any device. Built for you.</div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="icon">📊</div>
+                <h3>5500+ Markets</h3>
+                <p>Stocks, crypto, indices, commodities &amp; more</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">💰</div>
+                <h3>Transparent fees</h3>
+                <p>No deposit fees. Competitive spreads.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">📱</div>
+                <h3>Any device</h3>
+                <p>Web, mobile, tablet — seamless experience</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">🔒</div>
+                <h3>Regulated &amp; secure</h3>
+                <p>Licensed by SCB. Your funds are protected.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- TESTIMONIALS -->
+    <section class="testimonials-section">
+        <div class="section-label">What our <span style="color: #2563eb;">investors</span> say</div>
+        <div class="testimonial-grid">
+            <div class="testimonial-card">
+                <div class="person">
+                    <img class="avatar" src="https://randomuser.me/api/portraits/women/44.jpg" alt="Sarah" />
+                    <div><div class="name">Sarah Kaur</div><div class="role">Angel Investor</div></div>
+                </div>
+                <div class="stars">★★★★★</div>
+                <div class="quote">“The platform is intuitive. I love the live data and the clean interface.”</div>
+                <div class="check"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> Verified</div>
+            </div>
+            <div class="testimonial-card">
+                <div class="person">
+                    <img class="avatar" src="https://randomuser.me/api/portraits/men/32.jpg" alt="David" />
+                    <div><div class="name">David Roth</div><div class="role">Tech Founder</div></div>
+                </div>
+                <div class="stars">★★★★★</div>
+                <div class="quote">“Transparent fees and great execution. I’ve recommended it to my entire network.”</div>
+                <div class="check"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> Verified</div>
+            </div>
+            <div class="testimonial-card">
+                <div class="person">
+                    <img class="avatar" src="https://randomuser.me/api/portraits/women/68.jpg" alt="Elena" />
+                    <div><div class="name">Elena Marchetti</div><div class="role">Portfolio Manager</div></div>
+                </div>
+                <div class="stars">★★★★★</div>
+                <div class="quote">“A beautiful dashboard with real depth. The risk tools are exactly what I need.”</div>
+                <div class="check"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> Verified</div>
+            </div>
+            <div class="testimonial-card">
+                <div class="person">
+                    <img class="avatar" src="https://randomuser.me/api/portraits/men/46.jpg" alt="James" />
+                    <div><div class="name">James Okafor</div><div class="role">Financial Advisor</div></div>
+                </div>
+                <div class="stars">★★★★★</div>
+                <div class="quote">“My clients love the clarity. It’s become an essential part of my advisory workflow.”</div>
+                <div class="check"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> Verified</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- RISK FOOTER -->
+    <footer class="risk-footer">
+        <p>
+            <strong>Risk warning:</strong> CFDs are complex instruments and come with a high risk of losing money rapidly due to leverage.
+            <span class="highlight">78.48% of retail investors lose money</span> when trading CFDs with this provider.
+            You should consider whether you understand how CFDs work and whether you can afford to take the high risk of losing your money.
+        </p>
+        <p style="margin-top: 0.8rem; color: #94a3b8;">
+            InvestDesk is a trading name of Capital Com Online Investments Ltd, regulated by the SCB (License SIA-F245).
+            © 2026 InvestDesk. All rights reserved.
+        </p>
+    </footer>
+
+    <script>
+        (function() {
+            const toast = document.getElementById('toast');
+            let toastTimer = null;
+
+            function showToast(msg, type = 'success') {
+                if (toastTimer) clearTimeout(toastTimer);
+                toast.textContent = msg;
+                toast.className = 'toast ' + type + ' show';
+                toastTimer = setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+
+            // Tabs
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const forms = {
+                signin: document.getElementById('signinForm'),
+                register: document.getElementById('registerForm'),
+            };
+
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    const target = this.dataset.tab;
+                    Object.keys(forms).forEach(key => {
+                        forms[key].classList.toggle('active', key === target);
+                    });
+                    document.querySelectorAll('.field input').forEach(inp => inp.classList.remove('error',
+                    'success'));
+                    document.querySelectorAll('.error-msg').forEach(el => el.classList.remove('show'));
+                    document.getElementById('regEmailExistsError').style.display = 'none';
+                });
+            });
+
+            // Helpers
+            function setFieldError(input, errEl, condition) {
+                if (condition) {
+                    input.classList.add('error');
+                    input.classList.remove('success');
+                    errEl.classList.add('show');
+                } else {
+                    input.classList.remove('error');
+                    errEl.classList.remove('show');
+                }
+            }
+
+            function setFieldSuccess(input) {
+                input.classList.remove('error');
+                input.classList.add('success');
+            }
+
+            function validateEmail(email) {
+                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+            }
+
+            // Password strength
+            const regPassword = document.getElementById('regPassword');
+            const strengthFill = document.getElementById('strengthFill');
+            const strengthText = document.getElementById('strengthText');
+
+            regPassword.addEventListener('input', function() {
+                const pwd = this.value;
+                let strength = 0;
+                if (pwd.length >= 6) strength++;
+                if (pwd.length >= 10) strength++;
+                if (/[a-z]/.test(pwd) && /[A-Z]/.test(pwd)) strength++;
+                if (/\d/.test(pwd)) strength++;
+                if (/[^a-zA-Z0-9]/.test(pwd)) strength++;
+
+                if (pwd.length === 0) {
+                    strengthFill.style.width = '0%';
+                    strengthFill.style.background = '#e2e8f0';
+                    strengthText.textContent = 'Password strength';
+                    strengthText.style.color = '#64748b';
+                    return;
+                }
+                let width, color, label;
+                if (strength <= 1) { width = '25%';
+                    color = '#ef4444';
+                    label = 'Weak'; } else if (strength === 2) { width = '50%';
+                    color = '#f59e0b';
+                    label = 'Fair'; } else if (strength === 3) { width = '75%';
+                    color = '#3b82f6';
+                    label = 'Good'; } else { width = '100%';
+                    color = '#22c55e';
+                    label = 'Strong'; }
+                strengthFill.style.width = width;
+                strengthFill.style.background = color;
+                strengthText.textContent = label;
+                strengthText.style.color = color;
+            });
+
+            // Users (localStorage)
+            function getUsers() {
+                const data = localStorage.getItem('investdesk_users');
+                return data ? JSON.parse(data) : [];
+            }
+
+            function saveUsers(users) {
+                localStorage.setItem('investdesk_users', JSON.stringify(users));
+            }
+            if (getUsers().length === 0) {
+                saveUsers([{ name: 'Admin', email: 'admin@investdesk.com', password: 'admin123' }]);
+            }
+
+            // Login
+            const loginForm = document.getElementById('loginForm');
+            const loginEmail = document.getElementById('loginEmail');
+            const loginPassword = document.getElementById('loginPassword');
+            const loginEmailErr = document.getElementById('loginEmailError');
+            const loginPassErr = document.getElementById('loginPasswordError');
+
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const email = loginEmail.value.trim();
+                const password = loginPassword.value.trim();
+                const emailOk = validateEmail(email);
+                const passOk = password.length > 0;
+                setFieldError(loginEmail, loginEmailErr, !emailOk);
+                setFieldError(loginPassword, loginPassErr, !passOk);
+                if (!emailOk || !passOk) {
+                    showToast('Please fix the errors.', 'error');
+                    return;
+                }
+                const btn = document.getElementById('loginBtn');
+                btn.disabled = true;
+                btn.textContent = 'Signing in…';
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.textContent = 'Sign In';
+                    const users = getUsers();
+                    const user = users.find(u => u.email === email && u.password === password);
+                    if (user) {
+                        showToast('Welcome back, ' + user.name + '!', 'success');
+                        sessionStorage.setItem('investdesk_user', JSON.stringify(user));
+                        setTimeout(() => { window.location.href = '/dashboard.html'; }, 600);
+                    } else {
+                        showToast('Invalid email or password.', 'error');
+                    }
+                }, 800);
+            });
+
+            // Register
+            const regForm = document.getElementById('registerFormEl');
+            const regName = document.getElementById('regName');
+            const regEmail = document.getElementById('regEmail');
+            const regConfirm = document.getElementById('regConfirm');
+            const regNameErr = document.getElementById('regNameError');
+            const regEmailErr = document.getElementById('regEmailError');
+            const regEmailExistsErr = document.getElementById('regEmailExistsError');
+            const regPassErr = document.getElementById('regPasswordError');
+            const regConfirmErr = document.getElementById('regConfirmError');
+
+            regForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const name = regName.value.trim();
+                const email = regEmail.value.trim();
+                const password = regPassword.value.trim();
+                const confirm = regConfirm.value.trim();
+
+                const nameOk = name.length > 0;
+                const emailOk = validateEmail(email);
+                const passOk = password.length >= 6;
+                const confirmOk = password === confirm && passOk;
+                const users = getUsers();
+                const emailExists = users.some(u => u.email === email);
+
+                setFieldError(regName, regNameErr, !nameOk);
+                setFieldError(regEmail, regEmailErr, !emailOk);
+                setFieldError(regPassword, regPassErr, !passOk);
+                setFieldError(regConfirm, regConfirmErr, !confirmOk);
+
+                if (emailOk && emailExists) {
+                    regEmail.classList.add('error');
+                    regEmailExistsErr.style.display = 'block';
+                } else {
+                    regEmailExistsErr.style.display = 'none';
+                }
+                if (!nameOk || !emailOk || !passOk || !confirmOk || emailExists) {
+                    showToast('Please fix the errors.', 'error');
+                    return;
+                }
+                const btn = document.getElementById('registerBtn');
+                btn.disabled = true;
+                btn.textContent = 'Creating…';
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.textContent = 'Create Account';
+                    const newUser = { name, email, password };
+                    users.push(newUser);
+                    saveUsers(users);
+                    sessionStorage.setItem('investdesk_user', JSON.stringify(newUser));
+                    showToast('Account created! Welcome ' + name, 'success');
+                    setTimeout(() => { window.location.href = '/dashboard.html'; }, 700);
+                }, 900);
+            });
+
+            // Real-time validation
+            regName.addEventListener('blur', function() {
+                const ok = this.value.trim().length > 0;
+                setFieldError(this, regNameErr, !ok);
+                if (ok) setFieldSuccess(this);
+            });
+            regEmail.addEventListener('blur', function() {
+                const email = this.value.trim();
+                const ok = validateEmail(email);
+                setFieldError(this, regEmailErr, !ok);
+                if (ok) {
+                    setFieldSuccess(this);
+                    const users = getUsers();
+                    const exists = users.some(u => u.email === email);
+                    if (exists) {
+                        this.classList.add('error');
+                        this.classList.remove('success');
+                        regEmailExistsErr.style.display = 'block';
+                    } else {
+                        regEmailExistsErr.style.display = 'none';
+                    }
+                } else {
+                    regEmailExistsErr.style.display = 'none';
+                }
+            });
+            regPassword.addEventListener('blur', function() {
+                const ok = this.value.length >= 6;
+                setFieldError(this, regPassErr, !ok);
+                if (ok) setFieldSuccess(this);
+                if (regConfirm.value.length > 0) {
+                    const match = regPassword.value === regConfirm.value;
+                    setFieldError(regConfirm, regConfirmErr, !match);
+                    if (match) setFieldSuccess(regConfirm);
+                }
+            });
+            regConfirm.addEventListener('blur', function() {
+                const match = this.value === regPassword.value;
+                setFieldError(this, regConfirmErr, !match);
+                if (match) setFieldSuccess(this);
+            });
+            regConfirm.addEventListener('input', function() {
+                if (this.value.length === 0) {
+                    this.classList.remove('error', 'success');
+                    regConfirmErr.classList.remove('show');
+                }
+            });
+
+            // Pre-fill demo login
+            loginEmail.value = 'admin@investdesk.com';
+            loginPassword.value = 'admin123';
+
+            // Check if already logged in
+            const existingUser = sessionStorage.getItem('investdesk_user');
+            if (existingUser && (window.location.pathname.endsWith('index.html') || window.location.pathname === '/')) {
+                window.location.href = '/dashboard.html';
+            }
+        })();
+    </script>
+
+</body>
+</html>
