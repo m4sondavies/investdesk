@@ -160,11 +160,19 @@ def admin_required(fn):
 
 @app.route("/")
 def index():
+    """Serve the landing page (index.html)"""
+    return send_from_directory("templates", "index.html")
+
+
+@app.route("/dashboard")
+def dashboard():
+    """Serve the main dashboard (dashboard.html)"""
     return send_from_directory("templates", "dashboard.html")
 
 
 @app.route("/admin")
 def admin_page():
+    """Serve the admin panel (admin.html)"""
     return send_from_directory("templates", "admin.html")
 
 
@@ -324,9 +332,10 @@ if __name__ == "__main__":
     init_db()
     print("=" * 60)
     print(" Investment Dashboard")
-    print(" Dashboard : http://localhost:5000")
-    print(" Admin     : http://localhost:5000/admin")
-    print(f" Admin login: {ADMIN_USERNAME} / {ADMIN_PASSWORD}")
+    print(" Landing Page : http://localhost:5000")
+    print(" Dashboard    : http://localhost:5000/dashboard")
+    print(" Admin        : http://localhost:5000/admin")
+    print(f" Admin login  : {ADMIN_USERNAME} / {ADMIN_PASSWORD}")
     if not YFINANCE_AVAILABLE:
         print(" WARNING: yfinance is not installed — prices will not load.")
         print("          Run: pip install yfinance")
