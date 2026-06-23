@@ -736,13 +736,18 @@
       async function loadAdminData() {
         try {
           const invRes = await fetch('/api/admin/investments');
-          if (!invRes.ok) throw new Error('Failed to fetch investments');
+          if (!invRes.ok) {
+            const text = await invRes.text();
+            console.error('Failed to fetch investments:', text);
+            throw new Error('Failed to fetch investments');
+          }
           allInvestments = await invRes.json();
           
           const prices = await fetchPrices();
           renderAdminTable(allInvestments, prices);
           updateStats(allInvestments, prices);
         } catch (e) {
+          console.error('Error loading admin data:', e);
           showToast('Failed to load data. Please refresh.', 'error');
         }
       }
@@ -848,10 +853,14 @@
 
       // ----- Edit Investment -----
       window.editInvestment = function(id) {
+        console.log('Edit clicked for ID:', id);
+        console.log('All investments:', allInvestments);
         const inv = allInvestments.find(i => i.id === id);
         if (inv) {
+          console.log('Found investment:', inv);
           openEditModal(inv, 'edit');
         } else {
+          console.error('Investment not found with ID:', id);
           showToast('Investment not found. Please refresh.', 'error');
           loadAdminData();
         }
@@ -876,6 +885,7 @@
               } catch (e) {}
             }
           } catch (e) {
+            console.error('Delete error:', e);
             showToast(e.message || 'Error deleting.', 'error');
           }
         }
@@ -924,7 +934,7 @@
         if (e.target === editOverlay) editOverlay.classList.add('hidden'); 
       });
 
-      // ----- Submit Edit Form - FIXED -----
+      // ----- Submit Edit Form - FIXED with better error handling -----
       document.getElementById('editForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
@@ -948,6 +958,12 @@
           return;
         }
 
+        // Disable submit button
+        const submitBtn = document.getElementById('modalSubmitBtn');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Saving...';
+
         try {
           let url, method;
           if (currentMode === 'create') {
@@ -957,13 +973,14 @@
             const id = parseInt(editId.value);
             if (!id || isNaN(id)) { 
               showToast('Invalid record ID.', 'error'); 
+              submitBtn.disabled = false;
+              submitBtn.textContent = originalText;
               return; 
             }
             url = `/api/admin/investments/${id}`;
             method = 'PUT';
           }
 
-          // Log the request for debugging
           console.log('Saving investment:', { url, method, payload });
 
           const res = await fetch(url, {
@@ -976,14 +993,15 @@
           
           // Get response as text first to handle non-JSON responses
           const responseText = await res.text();
+          console.log('Response status:', res.status);
           console.log('Response text:', responseText);
           
           let responseData;
           try {
             responseData = JSON.parse(responseText);
           } catch (parseError) {
-            console.error('Failed to parse JSON:', responseText);
-            throw new Error('Server returned invalid response. Please try again.');
+            console.error('Failed to parse JSON. Raw response:', responseText);
+            throw new Error('Server returned invalid response. Please check the server console for errors.');
           }
           
           if (!res.ok) {
@@ -991,7 +1009,7 @@
           }
           
           editOverlay.classList.add('hidden');
-          showToast(currentMode === 'create' ? 'Investment created!' : 'Investment updated!', 'success');
+          showToast(currentMode === 'create' ? '✅ Investment created!' : '✅ Investment updated!', 'success');
           
           // Reload data
           await loadAdminData();
@@ -1005,7 +1023,11 @@
           }
         } catch (e) {
           console.error('Error saving investment:', e);
-          showToast(e.message || 'Error saving investment. Please try again.', 'error');
+          showToast('❌ ' + (e.message || 'Error saving investment. Please try again.'), 'error');
+        } finally {
+          // Re-enable submit button
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
         }
       });
 
