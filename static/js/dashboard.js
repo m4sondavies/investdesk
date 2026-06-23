@@ -2,7 +2,7 @@
    Dashboard logic — modern light theme with SVG icons
    ========================================================================= */
 
-const SYMBOLS = ["TSLA", "AAPL", "NVDA", "MSFT", "VNQ"];
+const SYMBOLS = ["TSLA", "AAPL", "NVDA", "MSFT"]; // Updated to 4 stocks only
 const POLL_MS = 5000;
 const USER_KEY = "investdesk_user_name";
 
@@ -95,15 +95,14 @@ function renderAssetCards(prices) {
       TSLA: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>`,
       AAPL: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>`,
       NVDA: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>`,
-      MSFT: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>`,
-      VNQ: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>`
+      MSFT: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>`
     };
 
     return `
       <div class="asset-card">
         <div class="row1">
           <span class="sym">${iconMap[sym] || ''} ${sym}</span>
-          <span class="pill sym-${sym}">${sym === "VNQ" ? "REIT" : "EQUITY"}</span>
+          <span class="pill sym-${sym}">EQUITY</span>
         </div>
         <div class="name">${p.label || sym}</div>
         <div class="price">$${price}</div>
@@ -240,7 +239,73 @@ function updateSummary(holdings) {
 }
 
 /* ---------------------------------------------------------------------
-   Add investment modal
+   CREATE MODAL — 4 stocks only, redirect to WhatsApp
+   --------------------------------------------------------------------- */
+
+function setupCreateModal() {
+  const openBtn = document.getElementById("openCreateModal");
+  const overlay = document.getElementById("createModalOverlay");
+  const cancelBtn = document.getElementById("cancelCreate");
+  const form = document.getElementById("createForm");
+
+  if (!openBtn) {
+    console.warn("Create button not found — check HTML");
+    return;
+  }
+
+  // Show modal when Create button is clicked
+  openBtn.addEventListener("click", function(e) {
+    e.preventDefault();
+    overlay.classList.remove("hidden");
+    console.log("Modal opened");
+  });
+
+  // Hide modal on cancel
+  cancelBtn.addEventListener("click", function() {
+    overlay.classList.add("hidden");
+  });
+
+  // Hide modal on overlay click (click outside)
+  overlay.addEventListener("click", function(e) {
+    if (e.target === overlay) {
+      overlay.classList.add("hidden");
+    }
+  });
+
+  // Handle form submission — redirect to WhatsApp
+  form.addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const name = document.getElementById("createName").value.trim();
+    const email = document.getElementById("createEmail").value.trim();
+    const amount = document.getElementById("createAmount").value.trim();
+    const asset = document.getElementById("createAsset").value;
+
+    if (!name || !email || !amount) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    // Build WhatsApp message
+    const message = `Hello InvestDesk! I would like to invest:%0A%0A` +
+      `Name: ${encodeURIComponent(name)}%0A` +
+      `Email: ${encodeURIComponent(email)}%0A` +
+      `Amount: $${encodeURIComponent(amount)}%0A` +
+      `Asset: ${encodeURIComponent(asset)} (only 4 stocks)`;
+
+    const phone = '16693627747'; // +1 669 362 7747
+    const url = `https://wa.me/${phone}?text=${message}`;
+
+    // Close modal and redirect
+    overlay.classList.add("hidden");
+    form.reset();
+    window.open(url, '_blank');
+    showToast("Opening WhatsApp...");
+  });
+}
+
+/* ---------------------------------------------------------------------
+   Add investment modal (legacy — keep for compatibility)
    --------------------------------------------------------------------- */
 
 function setupAddModal() {
@@ -347,7 +412,6 @@ document.addEventListener("DOMContentLoaded", () => {
     .pill.sym-AAPL { background: #dcfce7; color: #15803d; }
     .pill.sym-NVDA { background: #e0e7ff; color: #4338ca; }
     .pill.sym-MSFT { background: #fef3c7; color: #b45309; }
-    .pill.sym-VNQ { background: #fce7f3; color: #be185d; }
 
     .btn {
       display: inline-flex;
@@ -380,6 +444,80 @@ document.addEventListener("DOMContentLoaded", () => {
     /* Summary value colors */
     .value.up { color: #22c55e; }
     .value.down { color: #ef4444; }
+
+    /* Modal styles */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 1rem;
+    }
+    .modal-overlay.hidden {
+      display: none !important;
+    }
+    .modal {
+      background: white;
+      padding: 2rem 2rem 1.8rem;
+      border-radius: 32px;
+      max-width: 440px;
+      width: 100%;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.15);
+      animation: modalFade 0.2s ease-out;
+    }
+    @keyframes modalFade {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .modal h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .modal h3 svg { width: 26px; height: 26px; fill: #2563eb; }
+    .field { margin-bottom: 1rem; }
+    .field label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #475569;
+      margin-bottom: 0.2rem;
+    }
+    .field input, .field select {
+      width: 100%;
+      padding: 0.6rem 0.9rem;
+      border-radius: 16px;
+      border: 1px solid #d0d9e6;
+      background: white;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      transition: 0.1s;
+    }
+    .field input:focus, .field select:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+    }
+    .modal-actions {
+      display: flex;
+      gap: 0.6rem;
+      justify-content: flex-end;
+      margin-top: 1.5rem;
+    }
+    .modal-actions .btn { padding: 0.5rem 1.5rem; }
+    .modal-hint {
+      font-size: 0.7rem;
+      color: #94a3b8;
+      margin-top: 0.8rem;
+      text-align: center;
+    }
   `;
   document.head.appendChild(style);
 
@@ -389,7 +527,11 @@ document.addEventListener("DOMContentLoaded", () => {
     userLabel.textContent = getUserName();
   }
 
-  setupAddModal();
+  // Setup modals
+  setupCreateModal();
+  setupAddModal(); // Keep for compatibility
+
+  // Start polling
   pollPrices();
   setInterval(pollPrices, POLL_MS);
 });
