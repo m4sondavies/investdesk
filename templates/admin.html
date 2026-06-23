@@ -4,14 +4,456 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>InvestDesk — Admin</title>
-  <link rel="stylesheet" href="/static/css/style.css" />
+  <!-- Inter & Space Grotesk -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      color: #0b1b33;
+      line-height: 1.5;
+      min-height: 100vh;
+      background: #f0f4fe;
+    }
+
+    /* ----- LOGIN SCREEN with background image ----- */
+    .login-shell {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      position: relative;
+      background:
+        linear-gradient(135deg, rgba(11, 27, 51, 0.75) 0%, rgba(37, 99, 235, 0.40) 60%, rgba(11, 27, 51, 0.70) 100%),
+        url('https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat;
+    }
+    .login-shell::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      backdrop-filter: blur(2px);
+      z-index: 0;
+    }
+    .login-card {
+      position: relative;
+      z-index: 1;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      padding: 2.5rem 2.5rem 2rem;
+      border-radius: 36px;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      max-width: 400px;
+      width: 100%;
+    }
+    .login-card .mark {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 1.8rem;
+      letter-spacing: -0.03em;
+      color: #0b1b33;
+      text-align: center;
+      margin-bottom: 0.2rem;
+    }
+    .login-card .mark svg {
+      width: 32px;
+      height: 32px;
+      fill: #2563eb;
+      vertical-align: middle;
+      margin-right: 0.2rem;
+    }
+    .login-card h1 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      text-align: center;
+      color: #475569;
+      margin-bottom: 1.5rem;
+    }
+    .login-error {
+      background: #fef2f2;
+      color: #dc2626;
+      padding: 0.5rem 1rem;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+    .login-error.show { display: block; }
+    .login-card .field {
+      margin-bottom: 1rem;
+    }
+    .login-card .field label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #334155;
+      margin-bottom: 0.2rem;
+    }
+    .login-card .field input {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      border-radius: 14px;
+      border: 1px solid #d0d9e6;
+      background: rgba(255, 255, 255, 0.8);
+      font-size: 0.95rem;
+      font-family: 'Inter', sans-serif;
+      transition: 0.12s;
+    }
+    .login-card .field input:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+      background: white;
+    }
+    .btn {
+      background: transparent;
+      border: 1px solid #d0d9e6;
+      padding: 0.5rem 1.2rem;
+      border-radius: 40px;
+      font-weight: 500;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: 0.15s;
+      color: #1e293b;
+      font-family: 'Inter', sans-serif;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .btn-primary {
+      background: #2563eb;
+      border-color: #2563eb;
+      color: white;
+    }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-danger {
+      background: #dc2626;
+      border-color: #dc2626;
+      color: white;
+    }
+    .btn-danger:hover { background: #b91c1c; }
+    .btn-sm { padding: 0.3rem 0.8rem; font-size: 0.75rem; }
+
+    .hidden { display: none !important; }
+
+    /* ----- ADMIN SHELL (white panel) ----- */
+    .admin-wrapper {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 1.5rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ticker-tape {
+      background: #0b1b33;
+      color: #b9c8e0;
+      padding: 0.5rem 0;
+      overflow: hidden;
+      white-space: nowrap;
+      border-radius: 16px 16px 0 0;
+      font-size: 0.85rem;
+      letter-spacing: 0.01em;
+      flex-shrink: 0;
+    }
+    .ticker-track {
+      display: inline-flex;
+      gap: 2.8rem;
+      animation: tickerScroll 36s linear infinite;
+      padding-left: 2rem;
+    }
+    .ticker-item .sym { font-weight: 600; color: #f0f4ff; }
+    .ticker-item .change-up { color: #4ade80; }
+    .ticker-item .change-down { color: #f87171; }
+    @keyframes tickerScroll { 0% { transform:translateX(0); } 100% { transform:translateX(-50%); } }
+
+    .shell {
+      background: #ffffff;
+      border-radius: 0 0 32px 32px;
+      box-shadow: 0 20px 60px rgba(0,20,50,0.06);
+      border: 1px solid #e8edf6;
+      border-top: none;
+      display: flex;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+
+    .rail {
+      width: 230px;
+      background: #fafcff;
+      padding: 2rem 1.2rem 1.5rem;
+      border-right: 1px solid #e8edf6;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    .rail-brand .mark {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 1.6rem;
+      letter-spacing: -0.03em;
+      color: #0b1b33;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .rail-brand .mark svg { width: 28px; height: 28px; fill: #2563eb; }
+    .rail-brand .sub { font-size: 0.7rem; color: #64748b; letter-spacing: 0.04em; margin-top: 0.1rem; padding-left: 0.2rem; }
+    .rail-nav { margin: 2.2rem 0 1.8rem; display:flex; flex-direction:column; gap:0.4rem; }
+    .rail-link {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.6rem 0.75rem;
+      border-radius: 12px;
+      color: #64748b;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.9rem;
+      transition: 0.15s;
+    }
+    .rail-link svg { width: 20px; height: 20px; fill: currentColor; flex-shrink: 0; }
+    .rail-link.active {
+      background: #dbeafe;
+      color: #2563eb;
+      font-weight: 600;
+    }
+    .rail-link:hover:not(.active) { background: #f1f5f9; }
+    .rail-foot {
+      margin-top: auto;
+      font-size: 0.75rem;
+      color: #64748b;
+      border-top: 1px solid #e8edf6;
+      padding-top: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .main {
+      flex: 1;
+      padding: 1.8rem 2rem 2rem;
+      background: #ffffff;
+      min-width: 0;
+    }
+    .main-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.8rem;
+    }
+    .main-header h1 {
+      font-size: 1.6rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .main-header h1 svg { width: 28px; height: 28px; fill: #2563eb; }
+    .live-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: #22c55e;
+      border-radius: 50%;
+      box-shadow: 0 0 0 3px #dcfce7;
+      animation: pulse-dot 2s infinite;
+    }
+    @keyframes pulse-dot { 0% { opacity:1; } 50% { opacity:0.5; } 100% { opacity:1; } }
+    .meta {
+      color: #64748b;
+      font-size: 0.8rem;
+      background: #f1f5f9;
+      padding: 0.3rem 1rem;
+      border-radius: 40px;
+    }
+
+    .summary-strip {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 0.8rem;
+      margin-bottom: 2rem;
+    }
+    .summary-cell {
+      background: #f8fafc;
+      padding: 0.8rem 1rem;
+      border-radius: 16px;
+      border: 1px solid #e8edf6;
+      display: flex;
+      flex-direction: column;
+    }
+    .summary-cell .label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #64748b;
+    }
+    .summary-cell .value {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-top: 0.15rem;
+    }
+
+    .panel {
+      background: #fafcff;
+      border-radius: 20px;
+      border: 1px solid #e8edf6;
+      padding: 1.2rem 1.2rem 0.5rem;
+      margin-top: 1rem;
+    }
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .panel-head h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .panel-head h2 svg { width: 22px; height: 22px; fill: #2563eb; }
+
+    table { width:100%; border-collapse:collapse; font-size:0.85rem; }
+    th { text-align:left; padding:0.5rem 0.25rem; color:#64748b; font-weight:500; border-bottom:1px solid #e8edf6; }
+    td { padding:0.6rem 0.25rem; border-bottom:1px solid #f1f5f9; vertical-align:middle; }
+    .empty-state { text-align:center; padding:2rem 0; color:#64748b; }
+    .empty-state .icon { font-size:2rem; opacity:0.4; }
+
+    .actions-cell {
+      display: flex;
+      gap: 0.3rem;
+      flex-wrap: wrap;
+    }
+    .btn-icon {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0.2rem 0.4rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      transition: 0.12s;
+    }
+    .btn-icon:hover { background: #f1f5f9; }
+    .btn-icon.edit { color: #2563eb; }
+    .btn-icon.delete { color: #dc2626; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal {
+      background: white;
+      padding: 2rem;
+      border-radius: 32px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 20px 48px rgba(0,0,0,0.12);
+    }
+    .modal h3 {
+      font-size: 1.2rem;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .modal h3 svg { width: 24px; height: 24px; fill: #2563eb; }
+    .modal .field {
+      margin-bottom: 0.8rem;
+    }
+    .modal .field label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #475569;
+      margin-bottom: 0.2rem;
+    }
+    .modal .field input,
+    .modal .field select {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border-radius: 14px;
+      border: 1px solid #d0d9e6;
+      background: white;
+      font-family: 'Inter', sans-serif;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: flex-end;
+      margin-top: 1.2rem;
+    }
+
+    .toast {
+      position: fixed;
+      top: 5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0b1a2f;
+      color: white;
+      padding: 0.7rem 2rem;
+      border-radius: 60px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+      opacity: 0;
+      transition: opacity 0.25s, transform 0.25s;
+      pointer-events: none;
+      z-index: 1000;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .toast.success { background: #0b1a2f; }
+    .toast.error { background: #b91c1c; }
+
+    @media (max-width:860px) {
+      .rail { width:100%; border-right:none; border-bottom:1px solid #e8edf6; }
+      .login-card { padding: 2rem 1.5rem; }
+      .main { padding: 1.2rem; }
+      .summary-strip { grid-template-columns: 1fr 1fr; }
+      .admin-wrapper { padding: 0.5rem; }
+      .ticker-tape { border-radius: 0; }
+      .shell { border-radius: 0; }
+    }
+    @media (max-width:600px) {
+      .summary-strip { grid-template-columns: 1fr; }
+      table { font-size: 0.75rem; }
+      .actions-cell { flex-direction: column; gap: 0.2rem; }
+    }
+  </style>
 </head>
 <body>
 
-  <!-- Login screen -->
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ===== LOGIN SCREEN (with background image) ===== -->
   <div class="login-shell" id="loginShell">
     <div class="login-card">
-      <div class="mark">INVESTDESK</div>
+      <div class="mark">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+        INVESTDESK
+      </div>
       <h1>Admin sign in</h1>
       <div class="login-error" id="loginError"></div>
       <form id="loginForm">
@@ -28,83 +470,111 @@
     </div>
   </div>
 
-  <!-- Admin shell -->
+  <!-- ===== ADMIN SHELL (white panel on clean background) ===== -->
   <div class="hidden" id="adminShell">
-    <div class="ticker-tape">
-      <div class="ticker-track" id="tickerTrack">
-        <div class="ticker-item"><span class="sym">Loading live prices\u2026</span></div>
+    <div class="admin-wrapper">
+      <div class="ticker-tape">
+        <div class="ticker-track" id="tickerTrack">
+          <div class="ticker-item"><span class="sym">TSLA</span> $243.50 <span class="change-up">▲ 1.2%</span></div>
+          <div class="ticker-item"><span class="sym">AAPL</span> $178.20 <span class="change-up">▲ 0.6%</span></div>
+          <div class="ticker-item"><span class="sym">NVDA</span> $875.40 <span class="change-up">▲ 2.4%</span></div>
+          <div class="ticker-item"><span class="sym">MSFT</span> $415.10 <span class="change-down">▼ 0.2%</span></div>
+          <div class="ticker-item"><span class="sym">VNQ</span> $89.70 <span class="change-up">▲ 0.3%</span></div>
+          <div class="ticker-item"><span class="sym">BTC</span> $62,450 <span class="change-up">▲ 1.8%</span></div>
+          <div class="ticker-item"><span class="sym">ETH</span> $3,210 <span class="change-up">▲ 0.9%</span></div>
+        </div>
       </div>
-    </div>
 
-    <div class="shell">
-      <aside class="rail">
-        <div class="rail-brand">
-          <div class="mark">INVESTDESK</div>
-          <div class="sub">Admin console</div>
-        </div>
-        <nav class="rail-nav">
-          <a class="rail-link" href="/">Dashboard</a>
-          <a class="rail-link active" href="/admin">Admin panel</a>
-        </nav>
-        <div class="rail-foot">
-          <button class="btn btn-sm" id="logoutBtn" style="width:100%;">Sign out</button>
-        </div>
-      </aside>
+      <div class="shell">
+        <aside class="rail">
+          <div class="rail-brand">
+            <div class="mark">
+              <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+              INVESTDESK
+            </div>
+            <div class="sub">Admin console</div>
+          </div>
+          <nav class="rail-nav">
+            <a class="rail-link" href="/dashboard">
+              <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+              Dashboard
+            </a>
+            <a class="rail-link active" href="/admin">
+              <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/></svg>
+              Admin panel
+            </a>
+          </nav>
+          <div class="rail-foot">
+            <button class="btn btn-sm" id="logoutBtn" style="width:100%;">Sign out</button>
+          </div>
+        </aside>
 
-      <main class="main">
-        <div class="main-header">
-          <h1><span class="live-dot"></span>All user investments</h1>
-          <div class="meta">Edit or delete any record below</div>
-        </div>
+        <main class="main">
+          <div class="main-header">
+            <h1>
+              <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/></svg>
+              <span class="live-dot"></span> All user investments
+            </h1>
+            <div class="meta">Edit or delete any record below</div>
+          </div>
 
-        <div class="summary-strip" style="grid-template-columns: repeat(3, 1fr);">
-          <div class="summary-cell">
-            <div class="label">Total positions</div>
-            <div class="value mono tabular" id="statTotalRows">0</div>
+          <div class="summary-strip">
+            <div class="summary-cell">
+              <div class="label">Total positions</div>
+              <div class="value" id="statTotalRows">0</div>
+            </div>
+            <div class="summary-cell">
+              <div class="label">Unique users</div>
+              <div class="value" id="statTotalUsers">0</div>
+            </div>
+            <div class="summary-cell">
+              <div class="label">Total market value</div>
+              <div class="value" id="statTotalValue">$0.00</div>
+            </div>
           </div>
-          <div class="summary-cell">
-            <div class="label">Unique users</div>
-            <div class="value mono tabular" id="statTotalUsers">0</div>
-          </div>
-          <div class="summary-cell">
-            <div class="label">Total market value</div>
-            <div class="value mono tabular" id="statTotalValue">$0.00</div>
-          </div>
-        </div>
 
-        <div class="panel">
-          <div class="panel-head">
-            <h2>All holdings</h2>
+          <div class="panel">
+            <div class="panel-head">
+              <h2>All holdings</h2>
+              <button class="btn btn-sm" id="refreshBtn">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+                Refresh
+              </button>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>User</th>
+                  <th>Symbol</th>
+                  <th>Shares</th>
+                  <th>Buy price</th>
+                  <th>Current</th>
+                  <th>Gain / loss</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="adminBody"></tbody>
+            </table>
+            <div class="empty-state" id="adminEmpty">
+              <div class="icon">◌</div>
+              No investment records yet.
+            </div>
           </div>
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>User</th>
-                <th>Symbol</th>
-                <th>Shares</th>
-                <th>Buy price</th>
-                <th>Current</th>
-                <th>Gain / loss</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="adminBody"></tbody>
-          </table>
-          <div class="empty-state" id="adminEmpty">
-            <div class="icon">\u25E6</div>
-            No investment records yet.
-          </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   </div>
 
-  <!-- Edit modal -->
+  <!-- ===== EDIT MODAL ===== -->
   <div class="modal-overlay hidden" id="editModalOverlay">
     <div class="modal">
-      <h3>Edit investment</h3>
+      <h3>
+        <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+        Edit investment
+      </h3>
       <form id="editForm">
+        <input type="hidden" id="editId" />
         <div class="field">
           <label for="editUserName">User</label>
           <input type="text" id="editUserName" required />
@@ -135,7 +605,332 @@
     </div>
   </div>
 
-  <script src="/static/js/admin.js"></script>
-  <script src="/static/js/chat-widget.js"></script>
+  <script>
+    (function() {
+      // ============================================================
+      // TOAST
+      // ============================================================
+      const toast = document.getElementById('toast');
+      let toastTimer = null;
+
+      function showToast(msg, type = 'success') {
+        if (toastTimer) clearTimeout(toastTimer);
+        toast.textContent = msg;
+        toast.className = 'toast ' + type + ' show';
+        toastTimer = setTimeout(() => {
+          toast.classList.remove('show');
+        }, 3000);
+      }
+
+      // ============================================================
+      // AUTH CHECK
+      // ============================================================
+      const loginShell = document.getElementById('loginShell');
+      const adminShell = document.getElementById('adminShell');
+      const loginError = document.getElementById('loginError');
+      const loginForm = document.getElementById('loginForm');
+      const loginUsername = document.getElementById('loginUsername');
+      const loginPassword = document.getElementById('loginPassword');
+
+      async function checkAdminSession() {
+        try {
+          const res = await fetch('/api/admin/session');
+          const data = await res.json();
+          if (data.is_admin) {
+            loginShell.classList.add('hidden');
+            adminShell.classList.remove('hidden');
+            loadAdminData();
+          } else {
+            loginShell.classList.remove('hidden');
+            adminShell.classList.add('hidden');
+          }
+        } catch (e) {
+          console.warn('Session check failed:', e);
+          loginShell.classList.remove('hidden');
+          adminShell.classList.add('hidden');
+        }
+      }
+
+      // ============================================================
+      // LOGIN
+      // ============================================================
+      loginForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        loginError.classList.remove('show');
+        loginError.textContent = '';
+
+        const username = loginUsername.value.trim();
+        const password = loginPassword.value.trim();
+
+        if (!username || !password) {
+          loginError.textContent = 'Please enter both username and password.';
+          loginError.classList.add('show');
+          return;
+        }
+
+        try {
+          const res = await fetch('/api/admin/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+          });
+          const data = await res.json();
+
+          if (data.ok) {
+            loginShell.classList.add('hidden');
+            adminShell.classList.remove('hidden');
+            showToast('Welcome, Admin!', 'success');
+            loadAdminData();
+          } else {
+            loginError.textContent = data.error || 'Invalid username or password.';
+            loginError.classList.add('show');
+          }
+        } catch (e) {
+          loginError.textContent = 'Network error. Please try again.';
+          loginError.classList.add('show');
+        }
+      });
+
+      // ============================================================
+      // LOGOUT
+      // ============================================================
+      document.getElementById('logoutBtn').addEventListener('click', async function() {
+        try {
+          await fetch('/api/admin/logout', { method: 'POST' });
+        } catch (e) { /* ignore */ }
+        sessionStorage.removeItem('investdesk_user');
+        loginShell.classList.remove('hidden');
+        adminShell.classList.add('hidden');
+        showToast('Signed out.', 'success');
+      });
+
+      // ============================================================
+      // LOAD ADMIN DATA
+      // ============================================================
+      async function loadAdminData() {
+        try {
+          const invRes = await fetch('/api/admin/investments');
+          if (!invRes.ok) throw new Error('Failed to fetch investments');
+          const investments = await invRes.json();
+
+          const priceRes = await fetch('/api/prices');
+          const priceData = await priceRes.json();
+          const prices = priceData.prices || {};
+
+          renderAdminTable(investments, prices);
+          updateStats(investments, prices);
+
+        } catch (e) {
+          console.error('Error loading admin data:', e);
+          showToast('Failed to load data. Please refresh.', 'error');
+        }
+      }
+
+      // ============================================================
+      // RENDER TABLE
+      // ============================================================
+      function renderAdminTable(investments, prices) {
+        const tbody = document.getElementById('adminBody');
+        const empty = document.getElementById('adminEmpty');
+
+        if (!investments || investments.length === 0) {
+          tbody.innerHTML = '';
+          empty.style.display = 'block';
+          return;
+        }
+        empty.style.display = 'none';
+
+        let html = '';
+        investments.forEach(inv => {
+          const priceInfo = prices[inv.symbol] || { price: null, change_pct: null };
+          const currentPrice = priceInfo.price;
+          const changePct = priceInfo.change_pct;
+
+          const marketValue = currentPrice ? (currentPrice * inv.shares) : null;
+          const costBasis = inv.buy_price * inv.shares;
+          const gain = marketValue !== null ? (marketValue - costBasis) : null;
+          const gainPct = (gain !== null && costBasis > 0) ? (gain / costBasis * 100) : null;
+
+          const gainClass = gain !== null ? (gain >= 0 ? 'color:#22c55e;' : 'color:#dc2626;') : '';
+
+          html += `
+            <tr data-id="${inv.id}">
+              <td>${inv.id}</td>
+              <td>${escapeHtml(inv.user_name)}</td>
+              <td><strong>${inv.symbol}</strong></td>
+              <td>${inv.shares}</td>
+              <td>$${inv.buy_price.toFixed(2)}</td>
+              <td>${currentPrice !== null ? '$' + currentPrice.toFixed(2) : '—'}</td>
+              <td style="${gainClass}">
+                ${gain !== null ? '$' + gain.toFixed(2) + ' (' + (gainPct !== null ? (gainPct >= 0 ? '+' : '') + gainPct.toFixed(1) + '%)' : '—') : '—'}
+              </td>
+              <td>
+                <div class="actions-cell">
+                  <button class="btn-icon edit" data-id="${inv.id}" title="Edit">✏️</button>
+                  <button class="btn-icon delete" data-id="${inv.id}" title="Delete">🗑️</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        });
+
+        tbody.innerHTML = html;
+
+        tbody.querySelectorAll('.btn-icon.edit').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const id = parseInt(this.dataset.id);
+            const inv = investments.find(i => i.id === id);
+            if (inv) openEditModal(inv);
+          });
+        });
+
+        tbody.querySelectorAll('.btn-icon.delete').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const id = parseInt(this.dataset.id);
+            if (confirm('Delete this investment record?')) {
+              deleteInvestment(id);
+            }
+          });
+        });
+      }
+
+      // ============================================================
+      // UPDATE STATS
+      // ============================================================
+      function updateStats(investments, prices) {
+        const totalRows = investments.length;
+        const uniqueUsers = new Set(investments.map(i => i.user_name)).size;
+
+        let totalValue = 0;
+        investments.forEach(inv => {
+          const priceInfo = prices[inv.symbol] || { price: null };
+          if (priceInfo.price !== null) {
+            totalValue += priceInfo.price * inv.shares;
+          }
+        });
+
+        document.getElementById('statTotalRows').textContent = totalRows;
+        document.getElementById('statTotalUsers').textContent = uniqueUsers;
+        document.getElementById('statTotalValue').textContent = '$' + totalValue.toFixed(2);
+      }
+
+      // ============================================================
+      // EDIT MODAL
+      // ============================================================
+      const editOverlay = document.getElementById('editModalOverlay');
+      const editId = document.getElementById('editId');
+      const editUserName = document.getElementById('editUserName');
+      const editSymbol = document.getElementById('editSymbol');
+      const editShares = document.getElementById('editShares');
+      const editBuyPrice = document.getElementById('editBuyPrice');
+      const cancelEdit = document.getElementById('cancelEdit');
+
+      let currentEditId = null;
+
+      function openEditModal(inv) {
+        currentEditId = inv.id;
+        editId.value = inv.id;
+        editUserName.value = inv.user_name;
+        editSymbol.value = inv.symbol;
+        editShares.value = inv.shares;
+        editBuyPrice.value = inv.buy_price;
+        editOverlay.classList.remove('hidden');
+      }
+
+      cancelEdit.addEventListener('click', () => {
+        editOverlay.classList.add('hidden');
+        currentEditId = null;
+      });
+
+      editOverlay.addEventListener('click', (e) => {
+        if (e.target === editOverlay) {
+          editOverlay.classList.add('hidden');
+          currentEditId = null;
+        }
+      });
+
+      // ============================================================
+      // SAVE EDIT
+      // ============================================================
+      document.getElementById('editForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        if (currentEditId === null) return;
+
+        const payload = {
+          user_name: editUserName.value.trim(),
+          symbol: editSymbol.value,
+          shares: parseFloat(editShares.value),
+          buy_price: parseFloat(editBuyPrice.value)
+        };
+
+        try {
+          const res = await fetch(`/api/admin/investments/${currentEditId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || 'Update failed');
+          }
+
+          editOverlay.classList.add('hidden');
+          showToast('Investment updated successfully!', 'success');
+          loadAdminData();
+          currentEditId = null;
+        } catch (e) {
+          showToast(e.message || 'Error updating investment.', 'error');
+        }
+      });
+
+      // ============================================================
+      // DELETE INVESTMENT
+      // ============================================================
+      async function deleteInvestment(id) {
+        try {
+          const res = await fetch(`/api/admin/investments/${id}`, {
+            method: 'DELETE'
+          });
+
+          if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || 'Delete failed');
+          }
+
+          showToast('Investment deleted successfully!', 'success');
+          loadAdminData();
+        } catch (e) {
+          showToast(e.message || 'Error deleting investment.', 'error');
+        }
+      }
+
+      // ============================================================
+      // REFRESH
+      // ============================================================
+      document.getElementById('refreshBtn').addEventListener('click', function() {
+        loadAdminData();
+        showToast('Refreshing data...', 'success');
+      });
+
+      // ============================================================
+      // UTILITY
+      // ============================================================
+      function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      // ============================================================
+      // INIT
+      // ============================================================
+      loginUsername.value = 'admin';
+      loginPassword.value = 'admin123';
+      checkAdminSession();
+
+    })();
+  </script>
+
 </body>
 </html>
