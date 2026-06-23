@@ -641,6 +641,7 @@
     (function() {
       const ALLOWED_SYMBOLS = ['TSLA', 'AAPL', 'NVDA', 'MSFT'];
       let allInvestments = [];
+      let currentEditId = null;
 
       // ----- Toast -----
       const toast = document.getElementById('toast');
@@ -832,7 +833,7 @@
         track.innerHTML = html + html;
       }
 
-      // ----- Modal -----
+      // ----- Modal Functions -----
       const editOverlay = document.getElementById('editModalOverlay');
       const editId = document.getElementById('editId');
       const editUserName = document.getElementById('editUserName');
@@ -846,11 +847,25 @@
 
       let currentMode = 'edit';
 
+      // ----- Edit Investment - FIXED -----
       window.editInvestment = function(id) {
+        console.log('Edit clicked for ID:', id);
+        console.log('All investments:', allInvestments);
+        
+        // Find the investment by ID
         const inv = allInvestments.find(i => i.id === id);
-        if (inv) openEditModal(inv, 'edit');
+        console.log('Found investment:', inv);
+        
+        if (inv) {
+          openEditModal(inv, 'edit');
+        } else {
+          showToast('Investment not found. Please refresh.', 'error');
+          // Try to reload data
+          loadAdminData();
+        }
       };
 
+      // ----- Delete Investment -----
       window.deleteInvestment = async function(id) {
         if (confirm('Delete this investment record?')) {
           try {
@@ -874,6 +889,7 @@
         }
       };
 
+      // ----- Copy Investment -----
       window.copyInvestment = function(id) {
         const inv = allInvestments.find(i => i.id === id);
         if (inv) {
@@ -886,8 +902,11 @@
         }
       };
 
+      // ----- Open Edit Modal -----
       function openEditModal(inv, mode = 'edit') {
         currentMode = mode;
+        currentEditId = inv.id || null;
+        
         if (mode === 'create') {
           modalTitleText.textContent = 'Create New Investment';
           modalSubmitBtn.textContent = 'Create';
@@ -915,13 +934,16 @@
         if (e.target === editOverlay) editOverlay.classList.add('hidden'); 
       });
 
+      // ----- Submit Edit Form -----
       document.getElementById('editForm').addEventListener('submit', async function(e) {
         e.preventDefault();
+        
         const symbol = editSymbol.value;
         if (!ALLOWED_SYMBOLS.includes(symbol)) {
           showToast('Only TSLA, AAPL, NVDA, MSFT are allowed.', 'error');
           return;
         }
+        
         const payload = {
           user_name: editUserName.value.trim(),
           email: editEmail.value.trim(),
@@ -937,24 +959,34 @@
             method = 'POST';
           } else {
             const id = parseInt(editId.value);
-            if (!id) { showToast('Invalid record ID.', 'error'); return; }
+            if (!id) { 
+              showToast('Invalid record ID.', 'error'); 
+              return; 
+            }
             url = `/api/admin/investments/${id}`;
             method = 'PUT';
           }
+
+          console.log('Saving investment:', { url, method, payload });
 
           const res = await fetch(url, {
             method: method,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
           });
+          
           if (!res.ok) {
             const err = await res.json();
             throw new Error(err.error || 'Operation failed');
           }
+          
           editOverlay.classList.add('hidden');
           showToast(currentMode === 'create' ? 'Investment created!' : 'Investment updated!', 'success');
+          
+          // Reload data
           await loadAdminData();
           await updateTicker();
+          
           // Notify dashboard to refresh
           if (window.opener && !window.opener.closed) {
             try {
@@ -962,7 +994,7 @@
             } catch (e) {}
           }
         } catch (e) {
-          showToast(e.message || 'Error.', 'error');
+          showToast(e.message || 'Error saving investment.', 'error');
         }
       });
 
