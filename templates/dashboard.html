@@ -251,15 +251,6 @@
       overflow: hidden;
       min-height: 120px;
     }
-    .asset-card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-size: cover;
-      background-position: center;
-      opacity: 0.08;
-      z-index: 0;
-    }
     .asset-card:hover { transform: translateY(-2px); border-color: rgba(37,99,235,0.3); }
     .asset-card > * { position: relative; z-index: 1; }
     .asset-card .sym {
@@ -327,90 +318,30 @@
     .empty-state { text-align:center; padding:2rem 0; color:#64748b; }
     .empty-state .icon { font-size:2rem; opacity:0.4; }
 
-    .testimonials-section {
-      margin-top: 2.5rem;
-      background: rgba(255, 255, 255, 0.5);
-      backdrop-filter: blur(8px);
-      border-radius: 24px;
-      padding: 1.8rem 1.8rem 1.5rem;
-      border: 1px solid rgba(255,255,255,0.2);
-    }
-    .testimonials-section h3 {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-bottom: 1.2rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: #0b1b33;
-    }
-    .testimonials-section h3 svg { width: 24px; height: 24px; fill: #f59e0b; }
-    .testimonial-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px,1fr));
-      gap: 1.5rem;
-    }
-    .testimonial-card {
-      background: rgba(255, 255, 255, 0.7);
-      backdrop-filter: blur(4px);
-      padding: 1.2rem 1rem 1rem;
-      border-radius: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-      border: 1px solid rgba(255,255,255,0.4);
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-    }
-    .testimonial-card .person {
-      display: flex;
-      align-items: center;
-      gap: 0.7rem;
-      margin-bottom: 0.6rem;
-    }
-    .testimonial-card .avatar {
-      width: 48px;
-      height: 48px;
+    .toast {
+      position: fixed;
+      top: 5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0b1a2f;
+      color: white;
+      padding: 0.7rem 2rem;
       border-radius: 60px;
-      object-fit: cover;
-      border: 2px solid white;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
-    }
-    .testimonial-card .name { font-weight: 600; font-size: 0.9rem; color: #0b1b33; }
-    .testimonial-card .role { font-size: 0.7rem; color: #64748b; }
-    .testimonial-card .quote {
-      font-size: 0.85rem;
-      color: #1e293b;
-      line-height: 1.4;
-      margin-top: 0.2rem;
-      font-style: italic;
-    }
-
-    .contact-bar {
-      margin-top: 1.2rem;
-      font-size: 0.8rem;
-      background: rgba(255, 255, 255, 0.6);
-      backdrop-filter: blur(4px);
-      padding: 0.6rem 1.4rem;
-      border-radius: 60px;
-      display: inline-flex;
-      flex-wrap: wrap;
-      gap: 1.4rem;
-      align-items: center;
-      color: #1e293b;
-      border: 1px solid rgba(255,255,255,0.4);
-    }
-    .contact-bar a {
-      color: #2563eb;
-      text-decoration: none;
       font-weight: 500;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
+      font-size: 0.9rem;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+      opacity: 0;
+      transition: opacity 0.25s, transform 0.25s;
+      pointer-events: none;
+      z-index: 1000;
     }
-    .contact-bar a:hover { text-decoration:underline; }
-    .contact-bar svg { width: 16px; height: 16px; fill: #2563eb; }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .toast.success { background: #0b1a2f; }
+    .toast.error { background: #b91c1c; }
 
-    /* MODAL – fixed positioning */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -480,12 +411,6 @@
       margin-top: 1.5rem;
     }
     .modal-actions .btn { padding: 0.5rem 1.5rem; }
-    .modal-hint {
-      font-size: 0.7rem;
-      color: #94a3b8;
-      margin-top: 0.8rem;
-      text-align: center;
-    }
 
     @media (max-width:720px) {
       .rail { width:100%; border-right:none; border-bottom:1px solid rgba(0,0,0,0.06); }
@@ -500,299 +425,358 @@
 </head>
 <body>
 
-<!-- TICKER -->
-<div class="ticker-tape">
-  <div class="ticker-track" id="tickerTrack">
-    <div class="ticker-item"><span class="sym">TSLA</span> $243.50 <span class="change-up">▲ 1.2%</span></div>
-    <div class="ticker-item"><span class="sym">AAPL</span> $178.20 <span class="change-up">▲ 0.6%</span></div>
-    <div class="ticker-item"><span class="sym">NVDA</span> $875.40 <span class="change-up">▲ 2.4%</span></div>
-    <div class="ticker-item"><span class="sym">MSFT</span> $415.10 <span class="change-down">▼ 0.2%</span></div>
-    <div class="ticker-item"><span class="sym">VNQ</span> $89.70 <span class="change-up">▲ 0.3%</span></div>
-    <div class="ticker-item"><span class="sym">BTC</span> $62,450 <span class="change-up">▲ 1.8%</span></div>
-    <div class="ticker-item"><span class="sym">ETH</span> $3,210 <span class="change-up">▲ 0.9%</span></div>
+  <div class="toast" id="toast"></div>
+
+  <div class="ticker-tape">
+    <div class="ticker-track" id="tickerTrack"></div>
   </div>
-</div>
 
-<!-- SHELL -->
-<div class="shell">
-  <!-- RAIL -->
-  <aside class="rail">
-    <div class="rail-brand">
-      <div class="mark">
-        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
-        INVESTDESK
+  <div class="shell">
+    <aside class="rail">
+      <div class="rail-brand">
+        <div class="mark">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+          INVESTDESK
+        </div>
+        <div class="sub">Portfolio terminal</div>
       </div>
-      <div class="sub">Portfolio terminal</div>
-    </div>
-    <nav class="rail-nav">
-      <a class="rail-link active" href="#">
-        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-        Dashboard
-      </a>
-      <a class="rail-link" href="/admin">
-        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/></svg>
-        Admin panel
-      </a>
-    </nav>
-    <div class="rail-foot">
-      <div class="user-info">
-        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-        <span>Signed in as<br/><span class="mono" id="currentUserLabel">Loading...</span></span>
+      <nav class="rail-nav">
+        <a class="rail-link active" href="#">
+          <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+          Dashboard
+        </a>
+        <a class="rail-link" href="/admin">
+          <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/></svg>
+          Admin panel
+        </a>
+      </nav>
+      <div class="rail-foot">
+        <div class="user-info">
+          <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          <span>Signed in as<br/><span class="mono" id="currentUserLabel">Loading...</span></span>
+        </div>
+        <button class="btn-logout" id="logoutBtn">Sign out</button>
       </div>
-      <button class="btn-logout" id="logoutBtn">Sign out</button>
-    </div>
-  </aside>
+    </aside>
 
-  <!-- MAIN -->
-  <main class="main">
-    <div class="main-header">
-      <h1>
+    <main class="main">
+      <div class="main-header">
+        <h1>
+          <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+          <span class="live-dot"></span> Markets
+        </h1>
+        <div class="meta">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-.5-13v4h-5v2h5v4l5-5z"/></svg>
+          <span id="lastUpdated">Updated: Loading...</span>
+        </div>
+      </div>
+
+      <div class="summary-strip">
+        <div class="summary-cell"><div class="label"><svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>Market value</div><div class="value mono tabular" id="sumValue">$0.00</div></div>
+        <div class="summary-cell"><div class="label"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>Cost basis</div><div class="value mono tabular" id="sumCost">$0.00</div></div>
+        <div class="summary-cell"><div class="label"><svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>Unrealized gain</div><div class="value mono tabular" id="sumGain">$0.00</div></div>
+        <div class="summary-cell"><div class="label"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5h-2.16v2.16c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64h-1.71c.06 1.36.87 2.57 2.49 2.97V19h2.16v-2.16c1.51-.32 2.72-1.3 2.72-2.81 0-1.79-1.49-2.69-3.66-3.21z"/></svg>Return</div><div class="value mono tabular" id="sumGainPct">0.00%</div></div>
+        <div class="summary-cell"><div class="label"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>Holdings</div><div class="value mono tabular" id="sumCount">0</div></div>
+      </div>
+
+      <div class="section-label">
         <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
-        <span class="live-dot"></span> Markets
-      </h1>
-      <div class="meta">
-        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-.5-13v4h-5v2h5v4l5-5z"/></svg>
-        <span id="lastUpdated">Updated: 22 Jun 2026, 14:32</span>
+        Live prices
       </div>
-    </div>
+      <div class="asset-grid" id="assetGrid"></div>
 
-    <!-- summary -->
-    <div class="summary-strip">
-      <div class="summary-cell"><div class="label"><svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>Market value</div><div class="value mono tabular" id="sumValue">$184,230.00</div></div>
-      <div class="summary-cell"><div class="label"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>Cost basis</div><div class="value mono tabular" id="sumCost">$162,400.00</div></div>
-      <div class="summary-cell"><div class="label"><svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>Unrealized gain</div><div class="value mono tabular" id="sumGain">$21,830.00</div></div>
-      <div class="summary-cell"><div class="label"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5h-2.16v2.16c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64h-1.71c.06 1.36.87 2.57 2.49 2.97V19h2.16v-2.16c1.51-.32 2.72-1.3 2.72-2.81 0-1.79-1.49-2.69-3.66-3.21z"/></svg>Return</div><div class="value mono tabular" id="sumGainPct">+13.44%</div></div>
-      <div class="summary-cell"><div class="label"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>Holdings</div><div class="value mono tabular" id="sumCount">5</div></div>
-    </div>
-
-    <!-- live assets with stock background images -->
-    <div class="section-label">
-      <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
-      Live prices (4 stocks)
-    </div>
-    <div class="asset-grid" id="assetGrid">
-      <!-- TSLA -->
-      <div class="asset-card" style="background-image: linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.4) 100%), url('https://images.unsplash.com/photo-1617704548623-340376564e68?q=80&w=2070&auto=format&fit=crop'); background-size: cover; background-position: center;">
-        <div class="sym"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>TSLA</div>
-        <div class="price">$243.50</div>
-        <div class="chg" style="color:#22c55e;">▲ +1.2%</div>
-      </div>
-      <!-- AAPL -->
-      <div class="asset-card" style="background-image: linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.4) 100%), url('https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?q=80&w=2070&auto=format&fit=crop'); background-size: cover; background-position: center;">
-        <div class="sym"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>AAPL</div>
-        <div class="price">$178.20</div>
-        <div class="chg" style="color:#22c55e;">▲ +0.6%</div>
-      </div>
-      <!-- NVDA -->
-      <div class="asset-card" style="background-image: linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.4) 100%), url('https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=2065&auto=format&fit=crop'); background-size: cover; background-position: center;">
-        <div class="sym"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>NVDA</div>
-        <div class="price">$875.40</div>
-        <div class="chg" style="color:#22c55e;">▲ +2.4%</div>
-      </div>
-      <!-- MSFT -->
-      <div class="asset-card" style="background-image: linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.4) 100%), url('https://images.unsplash.com/photo-1544197150-b99a580bb7a8?q=80&w=2070&auto=format&fit=crop'); background-size: cover; background-position: center;">
-        <div class="sym"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>MSFT</div>
-        <div class="price">$415.10</div>
-        <div class="chg" style="color:#ef4444;">▼ -0.2%</div>
-      </div>
-    </div>
-
-    <!-- holdings panel with CREATE button -->
-    <div class="panel">
-      <div class="panel-head">
-        <h2><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/></svg>Your holdings</h2>
-        <button class="btn btn-primary" id="openCreateModal">
-          <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-          Create (4 stocks)
-        </button>
-      </div>
-      <table>
-        <thead><tr><th>Symbol</th><th>Shares</th><th>Buy price</th><th>Current</th><th>Market value</th><th>Gain</th><th></th></tr></thead>
-        <tbody id="holdingsBody">
-          <tr><td>TSLA</td><td>120</td><td>$210.00</td><td>$243.50</td><td>$29,220</td><td style="color:#22c55e;">+15.9%</td><td></td></tr>
-          <tr><td>AAPL</td><td>80</td><td>$165.00</td><td>$178.20</td><td>$14,256</td><td style="color:#22c55e;">+8.0%</td><td></td></tr>
-          <tr><td>NVDA</td><td>45</td><td>$740.00</td><td>$875.40</td><td>$39,393</td><td style="color:#22c55e;">+18.3%</td><td></td></tr>
-        </tbody>
-      </table>
-      <div class="empty-state" id="holdingsEmpty" style="display:none;"><div class="icon">◌</div>No holdings yet.</div>
-    </div>
-
-    <!-- testimonials -->
-    <div class="testimonials-section">
-      <h3><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>Investor voices</h3>
-      <div class="testimonial-grid">
-        <div class="testimonial-card">
-          <div class="person">
-            <img class="avatar" src="https://randomuser.me/api/portraits/women/44.jpg" alt="Sarah" />
-            <div><div class="name">Sarah K.</div><div class="role">Angel investor</div></div>
-          </div>
-          <div class="quote">"InvestDesk gives me real-time clarity. I check my portfolio daily — it's become my command center."</div>
+      <div class="panel">
+        <div class="panel-head">
+          <h2><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/></svg>Your holdings</h2>
+          <button class="btn btn-primary" id="openCreateModal">
+            <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            Create Investment
+          </button>
         </div>
-        <div class="testimonial-card">
-          <div class="person">
-            <img class="avatar" src="https://randomuser.me/api/portraits/men/32.jpg" alt="David" />
-            <div><div class="name">David R.</div><div class="role">Tech founder</div></div>
-          </div>
-          <div class="quote">"The light theme is so clean. I love the live ticker and how easy it is to track my holdings."</div>
-        </div>
-        <div class="testimonial-card">
-          <div class="person">
-            <img class="avatar" src="https://randomuser.me/api/portraits/women/68.jpg" alt="Elena" />
-            <div><div class="name">Elena M.</div><div class="role">Portfolio manager</div></div>
-          </div>
-          <div class="quote">"Tested many dashboards — this one is fast, beautiful, and the images make it feel human."</div>
-        </div>
+        <table>
+          <thead><tr><th>Symbol</th><th>Shares</th><th>Buy price</th><th>Current</th><th>Market value</th><th>Gain</th></tr></thead>
+          <tbody id="holdingsBody"></tbody>
+        </table>
+        <div class="empty-state" id="holdingsEmpty" style="display:none;"><div class="icon">◌</div>No holdings yet. Click "Create Investment" to add your first position.</div>
       </div>
-    </div>
-
-    <!-- contact -->
-    <div style="margin-top: 1.8rem; display: flex; justify-content: flex-start;">
-      <div class="contact-bar">
-        <span>
-          <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
-          <a href="tel:+16693627747">+1 669 362 7747</a>
-        </span>
-        <span>
-          <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-          <a href="mailto:investmentgroupofcompany37@gmail.com">investmentgroupofcompany37@gmail.com</a>
-        </span>
-      </div>
-    </div>
-
-  </main>
-</div>
-
-<!-- ===== CREATE MODAL (4 stocks only) ===== -->
-<div class="modal-overlay hidden" id="createModalOverlay">
-  <div class="modal">
-    <h3>
-      <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-      Create investment (4 stocks)
-    </h3>
-    <form id="createForm">
-      <div class="field">
-        <label for="createName">Full name *</label>
-        <input type="text" id="createName" placeholder="e.g. John Doe" required />
-      </div>
-      <div class="field">
-        <label for="createEmail">Email address *</label>
-        <input type="email" id="createEmail" placeholder="john@example.com" required />
-      </div>
-      <div class="field">
-        <label for="createAmount">Amount (USD) *</label>
-        <input type="number" id="createAmount" step="0.01" min="1" placeholder="e.g. 2500" required />
-      </div>
-      <div class="field">
-        <label for="createAsset">Stock / Crypto *</label>
-        <select id="createAsset" required>
-          <option value="TSLA">TSLA — Tesla</option>
-          <option value="AAPL">AAPL — Apple</option>
-          <option value="NVDA">NVDA — NVIDIA</option>
-          <option value="MSFT">MSFT — Microsoft</option>
-        </select>
-      </div>
-      <div class="modal-actions">
-        <button type="button" class="btn" id="cancelCreate">Cancel</button>
-        <button type="submit" class="btn btn-primary">Send to WhatsApp</button>
-      </div>
-    </form>
-    <p class="modal-hint">Your request will be sent via WhatsApp to +1 669 362 7747</p>
+    </main>
   </div>
-</div>
 
-<script>
-  (function() {
-    // ============================================================
-    // AUTH CHECK – redirect if not logged in
-    // ============================================================
-    const userData = sessionStorage.getItem('investdesk_user');
-    if (!userData) {
-      window.location.href = '/';
-      return;
-    }
-    let currentUser = null;
-    try {
-      currentUser = JSON.parse(userData);
-      const nameLabel = document.getElementById('currentUserLabel');
-      if (nameLabel && currentUser.name) {
-        nameLabel.textContent = currentUser.name + ' (' + currentUser.email + ')';
-      } else if (nameLabel && currentUser.email) {
-        nameLabel.textContent = currentUser.email;
-      }
-    } catch (e) { console.warn('User data parse error'); }
+  <div class="modal-overlay hidden" id="createModalOverlay">
+    <div class="modal">
+      <h3>
+        <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        Create Investment
+      </h3>
+      <form id="createForm">
+        <div class="field">
+          <label for="createName">Full Name *</label>
+          <input type="text" id="createName" placeholder="e.g. John Doe" required />
+        </div>
+        <div class="field">
+          <label for="createEmail">Email *</label>
+          <input type="email" id="createEmail" placeholder="john@example.com" required />
+        </div>
+        <div class="field">
+          <label for="createSymbol">Stock *</label>
+          <select id="createSymbol" required>
+            <option value="TSLA">TSLA — Tesla</option>
+            <option value="AAPL">AAPL — Apple</option>
+            <option value="NVDA">NVDA — NVIDIA</option>
+            <option value="MSFT">MSFT — Microsoft</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="createShares">Shares *</label>
+          <input type="number" id="createShares" step="0.0001" min="0.0001" placeholder="e.g. 10" required />
+        </div>
+        <div class="field">
+          <label for="createBuyPrice">Buy Price (USD) *</label>
+          <input type="number" id="createBuyPrice" step="0.01" min="0.01" placeholder="e.g. 150.00" required />
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn" id="cancelCreate">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Investment</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-    // logout
-    document.getElementById('logoutBtn').addEventListener('click', function() {
-      sessionStorage.removeItem('investdesk_user');
-      window.location.href = '/';
-    });
+  <script>
+    (function() {
+      const ALLOWED_SYMBOLS = ['TSLA', 'AAPL', 'NVDA', 'MSFT'];
+      let currentUser = null;
 
-    // ============================================================
-    // CREATE MODAL – only 4 stocks, redirect to WhatsApp
-    // ============================================================
-    const overlay = document.getElementById('createModalOverlay');
-    const openBtn = document.getElementById('openCreateModal');
-    const cancelBtn = document.getElementById('cancelCreate');
-    const createForm = document.getElementById('createForm');
+      // ----- Toast -----
+      const toast = document.getElementById('toast');
+      let toastTimer = null;
 
-    // Show modal when Create button is clicked
-    openBtn.addEventListener('click', function(e) {
-      e.preventDefault();
-      overlay.classList.remove('hidden');
-      console.log('Modal should be visible now');
-    });
-
-    // Hide modal on cancel
-    cancelBtn.addEventListener('click', function() {
-      overlay.classList.add('hidden');
-    });
-
-    // Hide modal on overlay click (click outside)
-    overlay.addEventListener('click', function(e) {
-      if (e.target === overlay) {
-        overlay.classList.add('hidden');
-      }
-    });
-
-    // Handle form submission
-    createForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-
-      // gather fields
-      const name = document.getElementById('createName').value.trim();
-      const email = document.getElementById('createEmail').value.trim();
-      const amount = document.getElementById('createAmount').value.trim();
-      const asset = document.getElementById('createAsset').value;
-
-      if (!name || !email || !amount) {
-        alert('Please fill in all fields.');
-        return;
+      function showToast(msg, type = 'success') {
+        if (toastTimer) clearTimeout(toastTimer);
+        toast.textContent = msg;
+        toast.className = 'toast ' + type + ' show';
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
       }
 
-      // build WhatsApp message
-      const message = `Hello InvestDesk! I would like to invest:%0A%0A` +
-        `Name: ${encodeURIComponent(name)}%0A` +
-        `Email: ${encodeURIComponent(email)}%0A` +
-        `Amount: $${encodeURIComponent(amount)}%0A` +
-        `Asset: ${encodeURIComponent(asset)} (only 4 stocks)`;
+      // ----- Auth Check -----
+      function checkAuth() {
+        const userData = sessionStorage.getItem('investdesk_user');
+        if (!userData) {
+          window.location.href = '/';
+          return false;
+        }
+        try {
+          currentUser = JSON.parse(userData);
+          document.getElementById('currentUserLabel').textContent = 
+            currentUser.name + ' (' + currentUser.email + ')';
+          return true;
+        } catch (e) {
+          window.location.href = '/';
+          return false;
+        }
+      }
 
-      const phone = '16693627747'; // +1 669 362 7747
-      const url = `https://wa.me/${phone}?text=${message}`;
+      // ----- Logout -----
+      document.getElementById('logoutBtn').addEventListener('click', function() {
+        sessionStorage.removeItem('investdesk_user');
+        window.location.href = '/';
+      });
 
-      // close modal and redirect
-      overlay.classList.add('hidden');
-      window.open(url, '_blank');
-    });
+      // ----- Fetch API Helpers -----
+      async function fetchPrices() {
+        try {
+          const res = await fetch('/api/prices');
+          const data = await res.json();
+          return data.prices || {};
+        } catch (e) {
+          console.error('Failed to fetch prices:', e);
+          return {};
+        }
+      }
 
-    // ============================================================
-    // Update timestamp
-    // ============================================================
-    const now = new Date();
-    document.getElementById('lastUpdated').textContent =
-      'Updated: ' + now.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) +
-      ', ' + now.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+      async function fetchInvestments(userName) {
+        try {
+          const res = await fetch(`/api/investments?user_name=${encodeURIComponent(userName)}`);
+          const data = await res.json();
+          return data;
+        } catch (e) {
+          console.error('Failed to fetch investments:', e);
+          return [];
+        }
+      }
 
-  })();
-</script>
+      // ----- Update UI -----
+      async function updateAssetGrid() {
+        const prices = await fetchPrices();
+        const grid = document.getElementById('assetGrid');
+        grid.innerHTML = '';
+
+        Object.entries(prices).forEach(([symbol, data]) => {
+          const card = document.createElement('div');
+          card.className = 'asset-card';
+          const changeClass = data.change_pct >= 0 ? '#22c55e' : '#ef4444';
+          const changeArrow = data.change_pct >= 0 ? '▲' : '▼';
+          
+          card.innerHTML = `
+            <div class="sym"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>${symbol}</div>
+            <div class="price">$${data.price ? data.price.toFixed(2) : 'N/A'}</div>
+            <div class="chg" style="color:${changeClass};">${changeArrow} ${data.change_pct ? data.change_pct.toFixed(1) : '0.0'}%</div>
+          `;
+          grid.appendChild(card);
+        });
+      }
+
+      async function updateHoldings() {
+        if (!currentUser) return;
+        const investments = await fetchInvestments(currentUser.name);
+        const prices = await fetchPrices();
+        
+        const tbody = document.getElementById('holdingsBody');
+        const empty = document.getElementById('holdingsEmpty');
+        
+        if (!investvements || investments.length === 0) {
+          tbody.innerHTML = '';
+          empty.style.display = 'block';
+          return;
+        }
+        
+        tbody.style.display = '';
+        empty.style.display = 'none';
+        tbody.innerHTML = '';
+        
+        let totalValue = 0;
+        let totalCost = 0;
+        
+        investments.forEach(inv => {
+          const currentPrice = prices[inv.symbol]?.price || inv.buy_price;
+          const currentValue = inv.shares * currentPrice;
+          const costBasis = inv.shares * inv.buy_price;
+          const gain = currentValue - costBasis;
+          const gainPct = costBasis > 0 ? (gain / costBasis * 100) : 0;
+          
+          totalValue += currentValue;
+          totalCost += costBasis;
+          
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td><strong>${inv.symbol}</strong></td>
+            <td>${inv.shares}</td>
+            <td>$${inv.buy_price.toFixed(2)}</td>
+            <td>$${currentPrice.toFixed(2)}</td>
+            <td>$${currentValue.toFixed(2)}</td>
+            <td style="color:${gain >= 0 ? '#22c55e' : '#ef4444'};">${gain >= 0 ? '+' : ''}${gainPct.toFixed(1)}%</td>
+          `;
+          tbody.appendChild(row);
+        });
+        
+        document.getElementById('sumValue').textContent = `$${totalValue.toFixed(2)}`;
+        document.getElementById('sumCost').textContent = `$${totalCost.toFixed(2)}`;
+        document.getElementById('sumGain').textContent = `$${(totalValue - totalCost).toFixed(2)}`;
+        document.getElementById('sumGainPct').textContent = 
+          `${totalCost > 0 ? ((totalValue - totalCost) / totalCost * 100).toFixed(2) : '0.00'}%`;
+        document.getElementById('sumCount').textContent = investments.length;
+      }
+
+      async function updateTicker() {
+        const prices = await fetchPrices();
+        const track = document.getElementById('tickerTrack');
+        let html = '';
+        
+        Object.entries(prices).forEach(([symbol, data]) => {
+          const changeClass = data.change_pct >= 0 ? 'change-up' : 'change-down';
+          const arrow = data.change_pct >= 0 ? '▲' : '▼';
+          html += `
+            <div class="ticker-item">
+              <span class="sym">${symbol}</span> 
+              $${data.price ? data.price.toFixed(2) : 'N/A'} 
+              <span class="${changeClass}">${arrow} ${data.change_pct ? data.change_pct.toFixed(1) : '0.0'}%</span>
+            </div>
+          `;
+        });
+        
+        track.innerHTML = html + html;
+      }
+
+      // ----- Create Investment -----
+      const overlay = document.getElementById('createModalOverlay');
+      const openBtn = document.getElementById('openCreateModal');
+      const cancelBtn = document.getElementById('cancelCreate');
+      const createForm = document.getElementById('createForm');
+
+      openBtn.addEventListener('click', () => overlay.classList.remove('hidden'));
+      cancelBtn.addEventListener('click', () => overlay.classList.add('hidden'));
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.classList.add('hidden');
+      });
+
+      createForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const name = document.getElementById('createName').value.trim();
+        const email = document.getElementById('createEmail').value.trim();
+        const symbol = document.getElementById('createSymbol').value;
+        const shares = parseFloat(document.getElementById('createShares').value);
+        const buyPrice = parseFloat(document.getElementById('createBuyPrice').value);
+        
+        if (!name || !email || !shares || !buyPrice) {
+          showToast('Please fill in all fields.', 'error');
+          return;
+        }
+        
+        const payload = {
+          user_name: name,
+          email: email,
+          symbol: symbol,
+          shares: shares,
+          buy_price: buyPrice
+        };
+        
+        try {
+          const res = await fetch('/api/investments', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          
+          if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || 'Failed to create investment');
+          }
+          
+          overlay.classList.add('hidden');
+          createForm.reset();
+          showToast('Investment created successfully!', 'success');
+          await updateHoldings();
+          await updateAssetGrid();
+        } catch (e) {
+          showToast(e.message || 'Error creating investment.', 'error');
+        }
+      });
+
+      // ----- Initialize -----
+      async function init() {
+        if (!checkAuth()) return;
+        
+        await updateTicker();
+        await updateAssetGrid();
+        await updateHoldings();
+        
+        // Update time
+        const now = new Date();
+        document.getElementById('lastUpdated').textContent = 
+          'Updated: ' + now.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) +
+          ', ' + now.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+        
+        // Auto-refresh every 15 seconds
+        setInterval(async () => {
+          await updateTicker();
+          await updateAssetGrid();
+          await updateHoldings();
+        }, 15000);
+      }
+
+      init();
+    })();
+  </script>
 </body>
 </html>
